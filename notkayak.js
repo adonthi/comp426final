@@ -25,8 +25,12 @@ var build_search = function() {
 
 var build_my_flights = function() {
     console.log("calling build_my_flights()");
+    $('a[isActive=true]').attr('isActive', false);
+    $('.flights_nav').attr('isActive', true);
 }
 
 var build_flight_view = function() {
     console.log("calling build_flight_view()");
+    $('a[isActive=true]').attr('isActive', false);
+    $('.flight_view_nav').attr('isActive', true);
 }
