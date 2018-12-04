@@ -1,0 +1,44 @@
+h1, a, p {
+ font-family: "Arial";
+ color: black;
+}
+body {
+    margin:0;
+}
+#not_navbar {
+    padding:20px;
+    margin-top:30px;
+    background-color:#99cfee;
+    height:1500px;
+}
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+li a:hover:not(.active) {
+    background-color: #111;
+}
+
+.active {
+    background-color: rgb(0, 153, 255);
+}
