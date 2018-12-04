@@ -11,10 +11,11 @@ body {
     font-weight: bold;
 }
 #not_navbar {
-    padding:20px;
+    padding:60px;
     margin-top:30px;
     height:1500px;
 }
+
 ul {
     list-style-type: none;
     margin: 0;
