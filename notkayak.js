@@ -51,9 +51,9 @@ var build_search = function() {
         console.log(response);
         for (let i = 0; i < airports.length; i++){
           port = airports[i];
-          var listitem = '<a id="loc" class="deps" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
+          var listitem = '<a id="loc" class="deps" dep_id="'+port.id +'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
           $("#dep_apt_drop").append(listitem);
-          var listitem = '<a id="loc" class="arrs" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
+          var listitem = '<a id="loc" class="arrs" arr_id="'+port.id+'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
           $("#arr_apt_drop").append(listitem);
         }
       }
@@ -79,14 +79,50 @@ function myFunction() {
 }
 
 function searchFlights() {
-    var dep_apt = $("#dep_apt").val();
-    var arr_apt = $("#arr_apt").val();
+    var dep_apt = $("#dep_apt").attr("code");
+    var arr_apt = $("#arr_apt").attr("code");
     var dep_date = $("#dep_date").val();
     var ret_date = $("#ret_date").val();
+    $("#results").empty();
     console.log(dep_apt);
     console.log(arr_apt);
     console.log(dep_date);
     console.log(ret_date);
+    $.ajax(root_url + 'flights?filter[departure_id]='+dep_apt+'filter[arrival_id]='+arr_apt, {
+      type: 'GET',
+      dataType: 'json',
+      xhrFields: {
+        withCredentials: true
+      },
+      success: (response) => {
+        var flights = response;
+        for (let i = 0; i < flights.length; i++){
+          let flight = flights[i];
+          console.log(flight.id)
+          $.ajax(root_url + 'instances?filter[flight_id]='+flight.id, {
+            type: 'GET',
+            dataType: 'json',
+            xhrFields: {
+              withCredentials: true
+            },
+            success: (response) => {
+              var instances = response;
+              for (let i = 0; i < instances.length; i++){
+                instance = instances[i];
+                if(instance.date == dep_date){
+                  console.log("instance:"+instance.flight_id);
+                  console.log("flight id:" +flight.id);
+                  $("#results").append('<div class=instance id="'+instance.id+'"></div>')
+                  $("#"+instance.id).append("Departure Date:"+instance.date+" Departure Time:" + flight.departs_at.split('T')[1].split('Z')[0]+" Arrival Time:" + flight.arrives_at.split('T')[1].split('Z')[0] + " Flight Number:"+flight.number)
+                }
+              }
+            }
+            });
+          
+        }
+        
+      }
+      });
 }
 // Close the dropdown menu if the user clicks outside of it
 $(document).on("click","#trip",function(){
@@ -102,13 +138,14 @@ $(document).on("click","#loc",function(){
   var code = $(this).attr("code");
   var name = $(this).attr("name");
   var type = $(this).attr("class");
-  console.log("here")
   if(type == "arrs"){
+    var apt_id = $(this).attr("arr_id")
     $("#arr_apt").val(name+" ("+code+")");
-    $("#arr_apt").attr("code",code);
+    $("#arr_apt").attr("code",apt_id);
   }else{
+    var apt_id = $(this).attr("dep_id")
     $("#dep_apt").val(name+" ("+code+")");
-    $("#dep_apt").attr("code",code);
+    $("#dep_apt").attr("code",apt_id);
   }
 });
 $(document).on("click",".airport_search",function(){
