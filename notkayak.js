@@ -7,6 +7,7 @@ $(document).ready(() => {
 
 var build_home = function() {
     $('#title_text').text('Find your flight here!');
+    $('#title_text').after('<img src="Header.jpg" class="head_img"></img>')
     $('a[isActive=true]').attr('isActive', false);
     $('.home_nav').attr('isActive', true);
     $('#content').empty();
