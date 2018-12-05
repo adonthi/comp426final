@@ -22,6 +22,12 @@ var build_navbar = function() {
 
 var build_search = function() {
     $('#search').append('<div id="dropdowns"></div>');
+    $('#search').append(
+    '<div><div class="label_div"><label for="dep_apt">Departure Airport</label><input id="dep_apt" class="airport_search" type="text" placeholder="From where?"></div> \
+    <div class="label_div"><label for="arr_apt">Arrival Airport</label><input id="arr_apt" class="airport_search" type="text" placeholder="To where?"></div> \
+    <div class="label_div"><label for="dep_date">When are you leaving?</label><input class="date" type="date" id="dep_date"></div> \
+    <div class="label_div"><label for="ret_date">When are you returning?</label><input class="date" type="date" id="ret_date"></div> \
+    <button onclick="searchFlights()">Go!</button></div>');
     $('#dropdowns').append(
     '<div class="dropdown"> \
         <button onclick="myFunction()" class="dropbtn">Dropdown</button> \
