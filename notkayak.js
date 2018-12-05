@@ -21,20 +21,20 @@ var build_navbar = function() {
 }
 
 var build_search = function() {
+    $('#search').empty();
     $('#search').append('<div id="dropdowns"></div>');
     $('#search').append(
-    '<div><div class="label_div"><label for="dep_apt">Departure Airport</label><input id="dep_apt" class="airport_search" type="text" placeholder="From where?"></div> \
-    <div class="label_div"><label for="arr_apt">Arrival Airport</label><input id="arr_apt" class="airport_search" type="text" placeholder="To where?"></div> \
-    <div class="label_div"><label for="dep_date">When are you leaving?</label><input class="date" type="date" id="dep_date"></div> \
-    <div class="label_div"><label for="ret_date">When are you returning?</label><input class="date" type="date" id="ret_date"></div> \
+    '<div><div class="label_div" id="dep_label"><label for="dep_apt">Departure Airport</label><input id="dep_apt" class="airport_search" type="text" placeholder="From where?"></div> \
+    <div class="label_div" id="arr_label"><label for="arr_apt">Arrival Airport</label><input id="arr_apt" class="airport_search" type="text" placeholder="To where?"></div> \
+    <div class="label_div" id="depdate_label"><label for="dep_date">When are you leaving?</label><input class="date" type="date" id="dep_date"></div> \
+    <div class="label_div" id="retdate_label"><label for="ret_date">When are you returning?</label><input class="date" type="date" id="ret_date"></div> \
     <button onclick="searchFlights()">Go!</button></div>');
     $('#dropdowns').append(
     '<div class="dropdown"> \
-        <button onclick="myFunction()" class="dropbtn">Dropdown</button> \
+        <button onclick="myFunction()" class="dropbtn">Round-Trip</button> \
         <div id="myDropdown" class="dropdown-content"> \
-            <a href="#">Link 1</a> \
-            <a href="#">Link 2</a> \
-            <a href="#">Link 3</a> \
+            <a id="trip" val="Round-Trip">Round-Trip</a> \
+            <a id="trip" val="One-way">One-way</a> \
         </div> \
     </div>');
     
@@ -57,8 +57,27 @@ toggle between hiding and showing the dropdown content */
 function myFunction() {
     document.getElementById("myDropdown").classList.toggle("show");
 }
-
+function searchFlights() {
+    var dep_apt = $("#dep_apt").val();
+    var arr_apt = $("#arr_apt").val();
+    var dep_date = $("#dep_date").val();
+    var ret_date = $("#ret_date").val();
+    console.log(dep_apt);
+    console.log(arr_apt);
+    console.log(dep_date);
+    console.log(ret_date);
+}
 // Close the dropdown menu if the user clicks outside of it
+$(document).on("click","#trip",function(){
+  var trip = $(this).attr("val");
+  $(".dropbtn").text(trip);
+  build_search();
+  if(trip == "One-way"){
+    $("#ret_date").hide();
+    $("#retdate_label").hide();
+  }
+  console.log($(this).attr("val"))
+});
 window.onclick = function(event) {
   if (!event.target.matches('.dropbtn')) {
 
