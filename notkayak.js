@@ -40,6 +40,12 @@ var build_search = function() {
             <a id="trip" val="One-way">One-way</a> \
         </div> \
     </"div>');
+    //Setting today to default date, next week default return date
+    let todayDate = new Date();
+    document.getElementById('dep_date').valueAsDate = todayDate;
+    let nextWeek = new Date();
+    nextWeek.setDate(todayDate.getDate()+7);
+    document.getElementById('ret_date').valueAsDate = nextWeek;
     $.ajax(root_url + 'airports', {
       type: 'GET',
       dataType: 'json',
