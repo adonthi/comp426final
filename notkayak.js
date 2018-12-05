@@ -1,3 +1,5 @@
+var root_url = "http://comp426.cs.unc.edu:3001/";
+
 $(document).ready(() => {
     build_navbar();
     build_home();
@@ -24,8 +26,8 @@ var build_search = function() {
     $('#search').empty();
     $('#search').append('<div id="dropdowns"></div>');
     $('#search').append(
-    '<div><div class="label_div" id="dep_label"><label for="dep_apt">Departure Airport</label><input id="dep_apt" class="airport_search" type="text" placeholder="From where?"></div> \
-    <div class="label_div" id="arr_label"><label for="arr_apt">Arrival Airport</label><input id="arr_apt" class="airport_search" type="text" placeholder="To where?"></div> \
+    '<div><div class="label_div" id="dep_label"><label for="dep_apt">Departure Airport</label><input id="dep_apt" class="airport_search" type="text" code="N/A" placeholder="From where?"><div id="dep_apt_drop" class="dropdown-content2"></div></div> \
+    <div class="label_div" id="arr_label"><label for="arr_apt">Arrival Airport</label><input id="arr_apt" class="airport_search" type="text" code="N/A" placeholder="To where?"><div id="arr_apt_drop" class="dropdown-content3"></div></div> \
     <div class="label_div" id="depdate_label"><label for="dep_date">When are you leaving?</label><input class="date" type="date" id="dep_date"></div> \
     <div class="label_div" id="retdate_label"><label for="ret_date">When are you returning?</label><input class="date" type="date" id="ret_date"></div> \
     <button onclick="searchFlights()">Go!</button></div>');
@@ -36,8 +38,25 @@ var build_search = function() {
             <a id="trip" val="Round-Trip">Round-Trip</a> \
             <a id="trip" val="One-way">One-way</a> \
         </div> \
-    </div>');
-    
+    </"div>');
+    $.ajax(root_url + 'airports', {
+      type: 'GET',
+      dataType: 'json',
+      xhrFields: {
+        withCredentials: true
+      },
+      success: (response) => {
+        var airports = response;
+        console.log(response);
+        for (let i = 0; i < airports.length; i++){
+          port = airports[i];
+          var listitem = '<a id="loc" class="deps" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
+          $("#dep_apt_drop").append(listitem);
+          var listitem = '<a id="loc" class="arrs" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
+          $("#arr_apt_drop").append(listitem);
+        }
+      }
+      });
 }
 
 var build_my_flights = function() {
@@ -57,6 +76,7 @@ toggle between hiding and showing the dropdown content */
 function myFunction() {
     document.getElementById("myDropdown").classList.toggle("show");
 }
+
 function searchFlights() {
     var dep_apt = $("#dep_apt").val();
     var arr_apt = $("#arr_apt").val();
@@ -76,12 +96,61 @@ $(document).on("click","#trip",function(){
     $("#ret_date").hide();
     $("#retdate_label").hide();
   }
-  console.log($(this).attr("val"))
 });
+$(document).on("click","#loc",function(){
+  var code = $(this).attr("code");
+  var name = $(this).attr("name");
+  var type = $(this).attr("class");
+  console.log("here")
+  if(type == "arrs"){
+    $("#arr_apt").val(name+" "+code);
+    $("#arr_apt").attr("code",code);
+  }else{
+    $("#dep_apt").val(name+" "+code);
+    $("#dep_apt").attr("code",code);
+  }
+});
+$(document).on("click",".airport_search",function(){
+  document.getElementById($(this).attr("id")+"_drop").classList.toggle("show");
+});
+$(document).on("keyup",".airport_search",function(){
+  if($(this).attr("id") == "dep_apt"){
+    var filt = ".deps"
+  }else{
+    var filt = ".arrs"
+  }  
+  var value = $(this).val().toLowerCase();
+  $(filt).filter(function() {
+    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+  });
+});
+
 window.onclick = function(event) {
   if (!event.target.matches('.dropbtn')) {
 
     var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+  if (!event.target.matches('#dep_apt')) {
+
+    var dropdowns = document.getElementsByClassName("dropdown-content2");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+  if (!event.target.matches('#arr_apt')) {
+
+    var dropdowns = document.getElementsByClassName("dropdown-content3");
     var i;
     for (i = 0; i < dropdowns.length; i++) {
       var openDropdown = dropdowns[i];
