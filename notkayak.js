@@ -25,6 +25,7 @@ var build_navbar = function() {
 var build_search = function() {
     $('#search').empty();
     $('#search').append('<div id="dropdowns"></div>');
+    $('#search').append('<br>')
     $('#search').append(
     '<div><div class="label_div" id="dep_label"><label for="dep_apt">Departure Airport</label><input id="dep_apt" class="airport_search" type="text" code="N/A" placeholder="From where?"><div id="dep_apt_drop" class="dropdown-content2"></div></div> \
     <div class="label_div" id="arr_label"><label for="arr_apt">Arrival Airport</label><input id="arr_apt" class="airport_search" type="text" code="N/A" placeholder="To where?"><div id="arr_apt_drop" class="dropdown-content3"></div></div> \
@@ -103,10 +104,10 @@ $(document).on("click","#loc",function(){
   var type = $(this).attr("class");
   console.log("here")
   if(type == "arrs"){
-    $("#arr_apt").val(name+" "+code);
+    $("#arr_apt").val(name+" ("+code+")");
     $("#arr_apt").attr("code",code);
   }else{
-    $("#dep_apt").val(name+" "+code);
+    $("#dep_apt").val(name+" ("+code+")");
     $("#dep_apt").attr("code",code);
   }
 });
