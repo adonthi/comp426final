@@ -133,11 +133,14 @@ function searchFlights() {
 // Close the dropdown menu if the user clicks outside of it
 $(document).on("click","#trip",function(){
   var trip = $(this).attr("val");
+  console.log(trip)
   $(".dropbtn").text(trip);
-  build_search();
   if(trip == "One-way"){
     $("#ret_date").hide();
     $("#retdate_label").hide();
+  }else{
+    $("#ret_date").show();
+    $("#retdate_label").show();
   }
 });
 $(document).on("click","#loc",function(){
