@@ -59,7 +59,9 @@ var set_dep_airport = function(position, airports) {
   }
   console.log(distMap.get(minDist));
   console.log(minDist);
-  //setting display text
+  //TODO - SET DEP_APT DEFAULT VALUE
+
+
 }
 
 
