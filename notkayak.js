@@ -1,4 +1,5 @@
 var root_url = "http://comp426.cs.unc.edu:3001/";
+var first = 0;
 $(document).ready(() => {
     build_navbar();
     $.ajax(root_url + 'airports', {
@@ -33,9 +34,7 @@ var build_navbar = function() {
     .append('<li><a class="flights_nav" isActive=false onclick="build_my_flights()">My Flights</a></li>')
     .append('<li><a class="flight_view_nav" isActive=false onclick="build_flight_view()">Flight View</a></li>');
 }
-
 var get_location = function (airports) {
-  console.log(airports);
   if (navigator.geolocation) {
       navigator.geolocation.watchPosition(function(position) {
         set_dep_airport(position, airports);
@@ -60,7 +59,23 @@ var set_dep_airport = function(position, airports) {
   console.log(distMap.get(minDist));
   console.log(minDist);
   //TODO - SET DEP_APT DEFAULT VALUE
-
+  $.ajax(root_url+"airports?filter[code]="+distMap.get(minDist),{
+    type: 'GET',
+      dataType: 'json',
+      xhrFields: {
+        withCredentials: true
+      },
+      success: (response) => {
+        var code = response[0].code;
+        var name = response[0].name;
+        var apt_id = response[0].id;
+        console.log(response[0]);
+        console.log(code);
+        console.log(name)
+        $("#dep_apt").val(name+" ("+code+")");
+        $("#dep_apt").attr("code",apt_id);
+      },
+  })
 
 }
 
@@ -132,7 +147,7 @@ toggle between hiding and showing the dropdown content */
 function myFunction() {
     document.getElementById("myDropdown").classList.toggle("show");
 }
-
+$(document).o
 function searchFlights() {
     var dep_apt = $("#dep_apt").attr("code");
     var arr_apt = $("#arr_apt").attr("code");
@@ -207,7 +222,18 @@ $(document).on("click","#loc",function(){
   }
 });
 $(document).on("click",".airport_search",function(){
-  document.getElementById($(this).attr("id")+"_drop").classList.toggle("show");
+  var box = $(this).attr("id");
+  if(first==0){
+    if(box == "dep_apt"){
+      $("#dep_apt").val("");
+      $("#dep_apt").attr("code","N/A")
+    }else{
+      $("#arr_apt").val("");
+      $("#darr_apt").attr("code","N/A")
+    }
+    first = 1;
+    document.getElementById($(this).attr("id")+"_drop").classList.toggle("show");
+  }
 });
 $(document).on("keyup",".airport_search",function(){
   if($(this).attr("id") == "dep_apt"){
@@ -243,6 +269,7 @@ window.onclick = function(event) {
         openDropdown.classList.remove('show');
       }
     }
+    first = 0;
   }
   if (!event.target.matches('#arr_apt')) {
 
@@ -254,5 +281,6 @@ window.onclick = function(event) {
         openDropdown.classList.remove('show');
       }
     }
+    first = 0;
   }
 }
