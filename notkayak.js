@@ -127,7 +127,7 @@ var build_search = function(airports) {
       </"div>\
       <div class="passes">\
         <label class="passengers" for="passengers">Passenger Count:</label> \
-        <input type="integer" id="pcount" placeholder="Enter email" name="passengers"> \
+        <input type="number" min="1" max="10" id="pcount" placeholder="How many passengers?" name="passengers"> \
       </div>\
     </div>');
     //Setting today to default date, next week default return date
