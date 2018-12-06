@@ -67,6 +67,7 @@ var set_dep_airport = function(position, airports) {
     var port = airports[codes.indexOf(distMap.get(distances[i]))];
     var item = '<a id="loc" class="deps" dep_id="'+port.id +'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
     $("#dep_apt_drop").append(item);
+    var item = '<a id="loc" class="arrs" arr_id="'+port.id +'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
     $("#arr_apt_drop").prepend(item);
   }
 
@@ -81,9 +82,6 @@ var set_dep_airport = function(position, airports) {
         var code = response[0].code;
         var name = response[0].name;
         var apt_id = response[0].id;
-        console.log(response[0]);
-        console.log(code);
-        console.log(name)
         $("#dep_apt").val(name+" ("+code+")");
         $("#dep_apt").attr("code",apt_id);
       },
@@ -166,10 +164,7 @@ function searchFlights() {
     var dep_date = $("#dep_date").val();
     var ret_date = $("#ret_date").val();
     $("#results").empty();
-    console.log(dep_apt);
-    console.log(arr_apt);
-    console.log(dep_date);
-    console.log(ret_date);
+    $("#results").append('<div class=departures><h2>Departure Flight Options</h2></div>')
     $.ajax(root_url + 'flights?filter[departure_id]='+dep_apt+'filter[arrival_id]='+arr_apt, {
       type: 'GET',
       dataType: 'json',
@@ -180,7 +175,6 @@ function searchFlights() {
         var flights = response;
         for (let i = 0; i < flights.length; i++){
           let flight = flights[i];
-          console.log(flight.id)
           $.ajax(root_url + 'instances?filter[flight_id]='+flight.id, {
             type: 'GET',
             dataType: 'json',
@@ -192,24 +186,69 @@ function searchFlights() {
               for (let i = 0; i < instances.length; i++){
                 instance = instances[i];
                 if(instance.date == dep_date){
-                  console.log("instance:"+instance.flight_id);
-                  console.log("flight id:" +flight.id);
-                  $("#results").append('<div class=instance id="'+instance.id+'"></div>')
-                  $("#"+instance.id).append("Departure Date:"+instance.date+" Departure Time:" + flight.departs_at.split('T')[1].split('Z')[0]+" Arrival Time:" + flight.arrives_at.split('T')[1].split('Z')[0] + " Flight Number:"+flight.number)
+                  $(".departures").append('<div class=instance id="'+instance.id+'"></div>')
+                  if(flight.departs_at.substring(11,12)>flight.arrives_at.substring(11,12)){
+                    var date_change = parseInt(instance.date.substring(8,10))+1;
+                    var arrival_date = instance.date.substring(0,8) + String(date_change);
+                  }else{
+                    var arrival_date = instance.date;
+                  }
+                  $("#"+instance.id).append('<input type="radio" id="'+instance.id+'" name="Departure">Departure Date:'+instance.date+" Departure Time:" + flight.departs_at.split('T')[1].split('Z')[0].substring(0,5)+" Arrival Date:"+arrival_date+" Arrival Time:" + flight.arrives_at.split('T')[1].split('Z')[0].substring(0,5) + " Flight Number:"+flight.number)
                 }
               }
             }
-            });
+          });
           
         }
         
       }
       });
+      if($(".dropbtn").text()!="One-way"){
+        $("#results").append('<div class=arrivals><h2>Return Flight Options</h2></div>')
+        $.ajax(root_url + 'flights?filter[departure_id]='+arr_apt+'filter[arrival_id]='+dep_apt, {
+          type: 'GET',
+          dataType: 'json',
+          xhrFields: {
+            withCredentials: true
+          },
+          success: (response) => {
+            var flights = response;
+            for (let i = 0; i < flights.length; i++){
+              let flight = flights[i];
+              $.ajax(root_url + 'instances?filter[flight_id]='+flight.id, {
+                type: 'GET',
+                dataType: 'json',
+                xhrFields: {
+                  withCredentials: true
+                },
+                success: (response) => {
+                  var instances = response;
+                  for (let i = 0; i < instances.length; i++){
+                    instance = instances[i];
+                    if(instance.date == ret_date){
+                      $(".arrivals").append('<div class=instance id="'+instance.id+'"></div>')
+                      if(flight.departs_at.substring(11,12)>flight.arrives_at.substring(11,12)){
+                        var date_change = parseInt(instance.date.substring(8,10))+1;
+                        var arrival_date = instance.date.substring(0,8) + String(date_change);
+                      }else{
+                        var arrival_date = instance.date;
+                      }
+                      var button = '<input type="radio" id="'+instance.id+'" name="Return">Return Departure Date:'+instance.date+' Departure Time:' + flight.departs_at.split('T')[1].split('Z')[0].substring(0,5)+' Return Arrival Date:'+arrival_date+' Arrival Time:' + flight.arrives_at.split('T')[1].split('Z')[0].substring(0,5) + ' Flight Number:'+flight.number;
+                      console.log(button);
+                      $("#"+instance.id).append(button);
+                    }
+                  }
+                }
+                });
+              
+              }
+            }
+          });
+        }
 }
 // Close the dropdown menu if the user clicks outside of it
 $(document).on("click","#trip",function(){
   var trip = $(this).attr("val");
-  console.log(trip)
   $(".dropbtn").text(trip);
   if(trip == "One-way"){
     $("#ret_date").hide();
