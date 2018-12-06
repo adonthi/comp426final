@@ -45,19 +45,31 @@ var get_location = function (airports) {
 
 var set_dep_airport = function(position, airports) {
   let distMap = new Map();
+  var codes = [];
+  var distances = [];
   //finding closest airport
   let minDist = Number.MAX_SAFE_INTEGER;
   let myLatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
   for (let i = 0; i < airports.length; i++) {
+    codes.push(airports[i].code);
     let aLatLong = new google.maps.LatLng(airports[i].latitude, airports[i].longitude);
     let currDist = google.maps.geometry.spherical.computeDistanceBetween(myLatLong, aLatLong)
     if (currDist < minDist) {
       minDist = currDist;
     }
+    distances.push(currDist);
     distMap.set(currDist, airports[i].code);
   }
-  console.log(distMap.get(minDist));
-  console.log(minDist);
+  distances.sort(function(a, b){return a-b});
+  $("#dep_apt_drop").empty();
+  $("#arr_apt_drop").empty();
+  for(let i = 0; i < airports.length; i++){
+    var port = airports[codes.indexOf(distMap.get(distances[i]))];
+    var item = '<a id="loc" class="deps" dep_id="'+port.id +'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
+    $("#dep_apt_drop").append(item);
+    $("#arr_apt_drop").prepend(item);
+  }
+
   //TODO - SET DEP_APT DEFAULT VALUE
   $.ajax(root_url+"airports?filter[code]="+distMap.get(minDist),{
     type: 'GET',
