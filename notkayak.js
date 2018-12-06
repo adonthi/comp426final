@@ -117,14 +117,21 @@ var build_search = function(airports) {
     <div class="label_div" id="retdate_label"><label for="ret_date">When are you returning?</label><input class="date" type="date" id="ret_date"></div> \
     <button onclick="searchFlights()">Go!</button></div>');
     $('#dropdowns').append(
-    '<div class="dropdown"> \
+    '<div class="info> \
+      <div class="dropdown"> \
         <button onclick="myFunction()" class="dropbtn">Round-Trip</button> \
         <div id="myDropdown" class="dropdown-content"> \
             <a id="trip" val="Round-Trip">Round-Trip</a> \
             <a id="trip" val="One-way">One-way</a> \
         </div> \
-    </"div>');
+      </"div>\
+      <div class="passes">\
+        <label class="passengers" for="passengers">Passenger Count:</label> \
+        <input type="integer" id="pcount" placeholder="Enter email" name="passengers"> \
+      </div>\
+    </div>');
     //Setting today to default date, next week default return date
+    $("#pcount").val("1");
     let todayDate = new Date();
     document.getElementById('dep_date').valueAsDate = todayDate;
     let nextWeek = new Date();
@@ -245,6 +252,7 @@ function searchFlights() {
             }
           });
         }
+    $("#results").append('<br><br><button class="dropbtn">Create Itenerary</button>') ;
 }
 // Close the dropdown menu if the user clicks outside of it
 $(document).on("click","#trip",function(){
