@@ -1,17 +1,29 @@
 var root_url = "http://comp426.cs.unc.edu:3001/";
-
 $(document).ready(() => {
     build_navbar();
-    build_home();
-});
-
-var build_home = function() {
+    $.ajax(root_url + 'airports', {
+      type: 'GET',
+      dataType: 'json',
+      xhrFields: {
+        withCredentials: true
+      },
+      success: (response) => {
+        build_home(response);
+      },
+      error: () => {
+        alert("Unable to get all airports");
+      }
+    });
+  });
+  
+  var build_home = function(airports) {
     $('#title_text').text('Find your flight here!');
     $('a[isActive=true]').attr('isActive', false);
     $('.home_nav').attr('isActive', true);
     $('#content').empty();
     $('#content').append('<img src="Header.jpg" class="head_img"></img>').append('<div id="search"></div>').append('<div id="results"></div>');
-    build_search();
+    build_search(airports);
+    get_location(airports);
 }
 
 var build_navbar = function() {
@@ -22,7 +34,52 @@ var build_navbar = function() {
     .append('<li><a class="flight_view_nav" isActive=false onclick="build_flight_view()">Flight View</a></li>');
 }
 
-var build_search = function() {
+var get_location = function (airports) {
+  console.log(airports);
+  if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(function(position) {
+        set_dep_airport(position, airports);
+      }, showError);
+  } else { 
+      x.innerHTML = "Geolocation is not supported by this browser.";}
+  }
+
+var set_dep_airport = function(position, airports) {
+  let distMap = new Map();
+  //finding closest airport
+  let minDist = Number.MAX_SAFE_INTEGER;
+  let myLatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+  for (let i = 0; i < airports.length; i++) {
+    let aLatLong = new google.maps.LatLng(airports[i].latitude, airports[i].longitude);
+    let currDist = google.maps.geometry.spherical.computeDistanceBetween(myLatLong, aLatLong)
+    if (currDist < minDist) {
+      minDist = currDist;
+    }
+    distMap.set(currDist, airports[i].code);
+  }
+  console.log(distMap.get(minDist));
+  console.log(minDist);
+  //setting display text
+}
+
+
+var showError = function(error) {
+  switch(error.code) {
+      case error.PERMISSION_DENIED:
+          alert("User denied the request for Geolocation.");
+          break;
+      case error.POSITION_UNAVAILABLE:
+          alert("Location information is unavailable.");
+          break;
+      case error.TIMEOUT:
+          alert("The request to get user location timed out.");
+          break;
+      case error.UNKNOWN_ERROR:
+          alert("An unknown error occurred.");
+          break;
+  }
+}
+var build_search = function(airports) {
     $('#search').empty();
     $('#search').append('<div id="dropdowns"></div>');
     $('#search').append('<br>')
@@ -46,25 +103,15 @@ var build_search = function() {
     let nextWeek = new Date();
     nextWeek.setDate(todayDate.getDate()+7);
     document.getElementById('ret_date').valueAsDate = nextWeek;
-    $.ajax(root_url + 'airports', {
-      type: 'GET',
-      dataType: 'json',
-      xhrFields: {
-        withCredentials: true
-      },
-      success: (response) => {
-        var airports = response;
-        console.log(response);
-        for (let i = 0; i < airports.length; i++){
-          port = airports[i];
-          var listitem = '<a id="loc" class="deps" dep_id="'+port.id +'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
-          $("#dep_apt_drop").append(listitem);
-          var listitem = '<a id="loc" class="arrs" arr_id="'+port.id+'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
-          $("#arr_apt_drop").append(listitem);
-        }
-      }
-      });
-}
+    //retrieving list of airports from API
+    for (let i = 0; i < airports.length; i++){
+      port = airports[i];
+      var listitem = '<a id="loc" class="deps" dep_id="'+port.id +'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
+      $("#dep_apt_drop").append(listitem);
+      var listitem = '<a id="loc" class="arrs" arr_id="'+port.id+'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
+      $("#arr_apt_drop").append(listitem);
+    }
+  }
 
 var build_my_flights = function() {
     console.log("calling build_my_flights()");
