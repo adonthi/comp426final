@@ -125,6 +125,7 @@ var build_search = function(airports) {
             <a id="trip" val="One-way">One-way</a> \
         </div> \
       </"div>\
+      <br>\
       <div class="passes">\
         <label class="passengers" for="passengers">Passenger Count:</label> \
         <input type="number" min="1" max="10" id="pcount" placeholder="How many passengers?" name="passengers"> \
