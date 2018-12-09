@@ -292,3 +292,8 @@ body{
 	border-radius: 50%;
 	background: white;
 }
+/* MAP STUFF */
+#map {
+    height: 500px;  
+    width: 100%;  /* The width is the width of the web page */
+   }

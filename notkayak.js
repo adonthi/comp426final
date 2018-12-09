@@ -1,23 +1,18 @@
 var root_url = "http://comp426.cs.unc.edu:3001/";
 var first = 0;
 $(document).ready(() => {
-    build_navbar();
-    $.ajax(root_url + 'airports', {
-      type: 'GET',
-      dataType: 'json',
-      xhrFields: {
-        withCredentials: true
-      },
-      success: (response) => {
-        build_home(response);
-      },
-      error: () => {
-        alert("Unable to get all airports");
-      }
-    });
-  });
+  build_navbar();
+  build_home();
+});
+
   
-  var build_home = function(airports) {
+  var build_home = function() {
+    console.log("calling build_home()");
+    $('#title_text').text('Find your flight here!');
+    $('a[isActive=true]').attr('isActive', false);
+    $('.home_nav').attr('isActive', true);
+    $('#content').empty();
+    $('#content').append('<img src="Header.jpg" class="head_img"></img>').append('<div id="search"></div>').append('<div id="results"></div>');
     $.ajax(root_url + 'airports', {
       type: 'GET',
       dataType: 'json',
@@ -25,15 +20,8 @@ $(document).ready(() => {
         withCredentials: true
       },
       success: (response) => {
-        $('.not_navbar').empty();
-        airports = response;
-        $('#title_text').text('Find your flight here!');
-        $('a[isActive=true]').attr('isActive', false);
-        $('.home_nav').attr('isActive', true);
-        $('#content').empty();
-        $('#content').append('<img src="Header.jpg" class="head_img"></img>').append('<div id="search"></div>').append('<div id="results"></div>');
-        build_search(airports);
-        get_location(airports);
+        build_search(response);
+        get_location(response);
       },
       error: () => {
         alert("Unable to get all airports");
@@ -172,8 +160,54 @@ var build_flight_view = function() {
     console.log("calling build_flight_view()");
     $('a[isActive=true]').attr('isActive', false);
     $('.flight_view_nav').attr('isActive', true);
-}
+    $('#title_text').text('Find your next adventure!');
+    $('#content').empty();
+    build_input_area();
+    $.ajax(root_url + 'airports', {
+      type: 'GET',
+      dataType: 'json',
+      xhrFields: {
+        withCredentials: true
+      },
+      success: (response) => {
+        build_gmaps_interface(response);
+      },
+      error: () => {
+        alert("Unable to get all airports");
+      }
+    });
 
+}
+var build_input_area = function() {
+
+}
+var build_gmaps_interface = function(airports) {
+  console.log("calling build_gmaps_interface");
+  $('#content').append('<div id="map"><div>');
+  let map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 4.65,
+    //defaulting to center of US
+    center: new google.maps.LatLng(39.8283, -98.5796),
+    mapTypeId: 'roadmap'
+  });
+  var features = [];
+  var icons = {airport:{icon: {url: "airport_icon.png", scaledSize: new google.maps.Size(50, 50)}}};
+  for (let i = 0; i < airports.length; i++) {
+    features.push({position: new google.maps.LatLng(airports[i].latitude, airports[i].longitude), type: "airport"});
+  }
+  features.forEach(function(feature) {
+    var marker = new google.maps.Marker({
+      position: feature.position,
+      icon: icons[feature.type].icon,
+      map: map,
+      animation: google.maps.Animation.DROP
+    });
+    google.maps.event.addListener(marker, 'mouseover', function() {
+      console.log("hovering over");
+      console.log(marker);
+  });
+  });
+}
 /* When the user clicks on the button, 
 toggle between hiding and showing the dropdown content */
 function myFunction() {
@@ -303,7 +337,7 @@ function searchFlights() {
             }
           });
         }
-    $("#results").append('<br><br><button class="dropbtn itinerary">Create Itenerary</button>') ;
+    $("#results").append('<br><br><button class="dropbtn itinerary">Create Itinerary</button>') ;
 
 }
 // Close the dropdown menu if the user clicks outside of it
