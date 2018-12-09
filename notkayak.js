@@ -165,7 +165,6 @@ toggle between hiding and showing the dropdown content */
 function myFunction() {
     document.getElementById("myDropdown").classList.toggle("show");
 }
-$(document).o
 function searchFlights() {
     var dep_apt = $("#dep_apt").attr("code");
     var arr_apt = $("#arr_apt").attr("code");
@@ -242,7 +241,7 @@ function searchFlights() {
                         var arrival_date = instance.date;
                       }
                       var button = '<input type="radio" id="'+instance.id+'" name="Return">Return Departure Date:'+instance.date+' Departure Time:' + flight.departs_at.split('T')[1].split('Z')[0].substring(0,5)+' Return Arrival Date:'+arrival_date+' Arrival Time:' + flight.arrives_at.split('T')[1].split('Z')[0].substring(0,5) + ' Flight Number:'+flight.number;
-                      console.log(button);
+                      //console.log(button);
                       $("#"+instance.id).append(button);
                     }
                   }
@@ -253,7 +252,8 @@ function searchFlights() {
             }
           });
         }
-    $("#results").append('<br><br><button class="dropbtn">Create Itenerary</button>') ;
+    $("#results").append('<br><br><button class="dropbtn itinerary">Create Itenerary</button>') ;
+
 }
 // Close the dropdown menu if the user clicks outside of it
 $(document).on("click","#trip",function(){
@@ -306,6 +306,140 @@ $(document).on("keyup",".airport_search",function(){
     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
   });
 });
+//build ticket interface
+$(document).on('click', '.itinerary', function(){
+  let num_tickets = $('#pcount').val();
+
+  let tickets = $('<div class = "tickets"></div>');
+  let itin_id = Math.floor(Math.random() * (1000 - 1)) + 1;
+  tickets.attr("id", itin_id);
+
+  let price = Math.random() * (300 - 50) + 50;
+
+  for (let i = 0; i < num_tickets; i ++){
+
+    let person = $('<div class="tkinfo"></div>').text("Passenger " + (i+1));
+    //person.append('<p></p>');
+    person.append(
+      '<input type="text" name="fname" placeholder="First name"><br> \
+       <input type="text" name="lname" placeholder="Last name"><br> \
+       <input type="text" name="age" placeholder="Age"><br> \
+       <input type="text" name="gender" placeholder="Gender"><br> \
+       <button type = "button" class="tkbtn">Submit</button>'
+    );
+    tickets.append(person);
+  }
+  tickets.append(
+  '<input type="text" name="email" placeholder="kmp@cs.unc.edu"><br> \
+  <input type="text" name="info" placeholder="Notes"><br> \
+  <button type = "button" class= "itbtn"> Complete </button>'
+  );
+  $('#results').after(tickets);
+  $('#results').css("display", "none");
+});
+
+$(document).on('click', '.tkbtn', (e) =>{
+  let person = $(e.target).parent();
+  person.find('input').prop("disabled", true);
+
+  let departValue = $("input[name='Departure']:checked");
+  let returnValue = $("input[name='Return']:checked");
+  
+
+
+
+  if (departValue.length > 0){
+    console.log("DEPART");
+    $.ajax(root_url + 'tickets', {
+      type: 'POST',
+      data: {
+        "ticket": {
+          "first_name":   person.find('[name="fname"]').val(),
+          "last_name":    person.find('[name="lname"]').val(),
+          "age":          person.find('[name="age"]').val(),
+          "gender":       person.find('[name="gender"]').val(),
+          "is_purchased": true,
+          "instance_id": departValue.attr("id"),
+          "itinerary_id": $(".tickets").attr("id")
+        }
+      },
+      dataType: "json",
+      xhrFields: {
+        withCredentials: true
+      },
+      success: (response) => {
+        /*ignore*/
+      },
+      error: () => {
+        alert("Unable submit ticket");
+      }
+    });
+  }
+
+
+  console.log('MIDDLE');
+
+
+  if (returnValue.length > 0){
+    console.log("RETURN");
+    $.ajax(root_url + 'tickets', {
+      type: 'POST',
+      data: {
+        "ticket": {
+          "first_name":   person.find('[name="fname"]').val(),
+          "last_name":    person.find('[name="lname"]').val(),
+          "age":          person.find('[name="age"]').val(),
+          "gender":       person.find('[name="gender"]').val(),
+          "is_purchased": true,
+          "instance_id": returnValue.attr("id"),
+          "itinerary_id": $(".tickets").attr("id")
+        }
+      },
+      dataType: "json",
+      xhrFields: {
+        withCredentials: true
+      },
+      success: (response) => {
+        console.log(response);
+      },
+      error: () => {
+        alert("Unable submit ticket");
+      }
+    });
+  }
+  
+});
+
+$(document).on('click','.itbtn', (e) => {
+  
+  $.ajax(root_url + 'itineraries ', {
+    type: 'POST',
+    data: {
+      "itinerary": {
+        "confirmation_code": Math.random().toString(36).substr(2, 5),
+        "email": $("input[name='email']").val(),
+        "info":  $("input[name='info']").val()
+      }
+    },
+    dataType: "json",
+    xhrFields: {
+      withCredentials: true
+    },
+    success: (response) => {
+      console.log(response);
+    },
+    error: () => {
+      alert("Unable submit ticket");
+    }
+  });
+
+
+});
+
+
+
+
+
 
 window.onclick = function(event) {
   if (!event.target.matches('.dropbtn')) {
