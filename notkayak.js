@@ -191,7 +191,7 @@ var build_gmaps_interface = function(airports) {
     mapTypeId: 'roadmap'
   });
   var features = [];
-  var icons = {airport:{icon: {url: "airport_icon.png", scaledSize: new google.maps.Size(50, 50)}}};
+  var icons = {airport:{icon: {url: "airport_icon.png", scaledSize: new google.maps.Size(25, 25)}}};
   for (let i = 0; i < airports.length; i++) {
     features.push({position: new google.maps.LatLng(airports[i].latitude, airports[i].longitude), type: "airport"});
   }
@@ -205,7 +205,11 @@ var build_gmaps_interface = function(airports) {
     google.maps.event.addListener(marker, 'mouseover', function() {
       console.log("hovering over");
       console.log(marker);
-  });
+      marker.setIcon({url: "airport_icon_green.png", scaledSize: new google.maps.Size(25, 25)});
+    });
+    google.maps.event.addListener(marker, "mouseout", function() {
+      marker.setIcon({url: "airport_icon.png", scaledSize: new google.maps.Size(25, 25)});
+    });
   });
 }
 /* When the user clicks on the button, 
