@@ -218,9 +218,22 @@ function searchFlights() {
                   price = 1 + (Math.random()*100).toFixed(2);
                   $("#"+instance.id).append('<div class="container"><input type="radio" id="'+instance.id+'" name="Departure" price="'+price+'"> \
                   <span class="checkmark"></span></div> \
-                  Departure Date:'+instance.date+" Departure Time:" + flight.departs_at.split('T')[1].split('Z')[0].substring(0,5)+" \
-                  Arrival Date:"+arrival_date+" Arrival Time:" + flight.arrives_at.split('T')[1].split('Z')[0].substring(0,5) + " \
-                  Flight Number:"+flight.number+' Price: $'+price + '')
+                  <div class="results"> \
+                  <div class="res date"> \
+                  <h3>Departure Date</h3><p>'+instance.date+"</p> \
+                  </div> \
+                  <div class='res time'> \
+                  <h3>Departure Time</h3><p>" + flight.departs_at.split('T')[1].split('Z')[0].substring(0,5)+"</p> \
+                  </div> \
+                  <div class='res date'>\
+                  <h3>Arrival Date</h3><p>"+arrival_date+"</p> \
+                  </div>\
+                  <div class='res time'> \
+                  <h3>Arrival Time</h3><p>" + flight.arrives_at.split('T')[1].split('Z')[0].substring(0,5) + "</p> \
+                  </div> \
+                  <div class='res'> \
+                  <h3>Flight Number</h3><p>"+flight.number+'</p> \
+                  </div><div class="res"><h3>Price</h3><p>$'+price+'</p></div></div>');
                 }
               }
             }
@@ -262,9 +275,25 @@ function searchFlights() {
                       }
                       let price = 0;
                       price = 1 + (Math.random()*100).toFixed(2);
-                      var button = '<input type="radio" id="'+instance.id+'" name="Return" price="'+price+'">Return Departure Date:'+instance.date+' Departure Time:' + flight.departs_at.split('T')[1].split('Z')[0].substring(0,5)+' Return Arrival Date:'+arrival_date+' Arrival Time:' + flight.arrives_at.split('T')[1].split('Z')[0].substring(0,5) + ' Flight Number:'+flight.number  +' Price: $'+price;
-                      //console.log(button);
-                      $("#"+instance.id).append(button);
+                      var input = '<div class="container"><input type="radio" id="'+instance.id+'" name="Return" price="'+price+'"> \
+                      <span class="checkmark"></span></div> \
+                      <div class="results"> \
+                      <div class="res date"> \
+                      <h3>Departure Date</h3><p>'+instance.date+"</p> \
+                      </div> \
+                      <div class='res time'> \
+                      <h3>Departure Time</h3><p>" + flight.departs_at.split('T')[1].split('Z')[0].substring(0,5)+"</p> \
+                      </div> \
+                      <div class='res date'>\
+                      <h3>Arrival Date</h3><p>"+arrival_date+"</p> \
+                      </div>\
+                      <div class='res time'> \
+                      <h3>Arrival Time</h3><p>" + flight.arrives_at.split('T')[1].split('Z')[0].substring(0,5) + "</p> \
+                      </div> \
+                      <div class='res'> \
+                      <h3>Flight Number</h3><p>"+flight.number+'</p> \
+                      </div><div class="res"><h3>Price</h3><p>$'+price+'</p></div></div>'
+                      $("#"+instance.id).append(input);
                     }
                   }
                 }

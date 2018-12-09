@@ -166,6 +166,13 @@ button:hover, button:focus {
     box-shadow: 1px 1px 7px;
     transition: box-shadow .25s;
 }
+.results {
+    display: flex;
+    flex-direction: right;
+}
+.res {
+    margin: auto;
+}
 input[type="radio"]{
     float: left;
     width: 20px;
@@ -219,7 +226,7 @@ body{
 .container {
     display: block;
     position: relative;
-    /* padding-right: 50px; */
+    padding-right: 50px;
     margin-bottom: 5px;
     cursor: pointer;
     font-size: 22px;
