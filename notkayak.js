@@ -202,7 +202,11 @@ function searchFlights() {
                   }
                   let price = 0;
                   price = 1 + (Math.random()*100).toFixed(2);
-                  $("#"+instance.id).append('<input type="radio" id="'+instance.id+'" name="Departure" price="'+price+'">Departure Date:'+instance.date+" Departure Time:" + flight.departs_at.split('T')[1].split('Z')[0].substring(0,5)+" Arrival Date:"+arrival_date+" Arrival Time:" + flight.arrives_at.split('T')[1].split('Z')[0].substring(0,5) + " Flight Number:"+flight.number +' Price: $'+price)
+                  $("#"+instance.id).append('<div class="container"><input type="radio" id="'+instance.id+'" name="Departure" price="'+price+'"> \
+                  <span class="checkmark"></span></div> \
+                  Departure Date:'+instance.date+" Departure Time:" + flight.departs_at.split('T')[1].split('Z')[0].substring(0,5)+" \
+                  Arrival Date:"+arrival_date+" Arrival Time:" + flight.arrives_at.split('T')[1].split('Z')[0].substring(0,5) + " \
+                  Flight Number:"+flight.number+' Price: $'+price + '')
                 }
               }
             }
