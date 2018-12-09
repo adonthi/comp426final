@@ -200,7 +200,9 @@ function searchFlights() {
                   }else{
                     var arrival_date = instance.date;
                   }
-                  $("#"+instance.id).append('<input type="radio" id="'+instance.id+'" name="Departure">Departure Date:'+instance.date+" Departure Time:" + flight.departs_at.split('T')[1].split('Z')[0].substring(0,5)+" Arrival Date:"+arrival_date+" Arrival Time:" + flight.arrives_at.split('T')[1].split('Z')[0].substring(0,5) + " Flight Number:"+flight.number)
+                  let price = 0;
+                  price = 1 + (Math.random()*100).toFixed(2);
+                  $("#"+instance.id).append('<input type="radio" id="'+instance.id+'" name="Departure" price="'+price+'">Departure Date:'+instance.date+" Departure Time:" + flight.departs_at.split('T')[1].split('Z')[0].substring(0,5)+" Arrival Date:"+arrival_date+" Arrival Time:" + flight.arrives_at.split('T')[1].split('Z')[0].substring(0,5) + " Flight Number:"+flight.number +' Price: $'+price)
                 }
               }
             }
@@ -240,7 +242,9 @@ function searchFlights() {
                       }else{
                         var arrival_date = instance.date;
                       }
-                      var button = '<input type="radio" id="'+instance.id+'" name="Return">Return Departure Date:'+instance.date+' Departure Time:' + flight.departs_at.split('T')[1].split('Z')[0].substring(0,5)+' Return Arrival Date:'+arrival_date+' Arrival Time:' + flight.arrives_at.split('T')[1].split('Z')[0].substring(0,5) + ' Flight Number:'+flight.number;
+                      let price = 0;
+                      price = 1 + (Math.random()*100).toFixed(2);
+                      var button = '<input type="radio" id="'+instance.id+'" name="Return" price="'+price+'">Return Departure Date:'+instance.date+' Departure Time:' + flight.departs_at.split('T')[1].split('Z')[0].substring(0,5)+' Return Arrival Date:'+arrival_date+' Arrival Time:' + flight.arrives_at.split('T')[1].split('Z')[0].substring(0,5) + ' Flight Number:'+flight.number  +' Price: $'+price;
                       //console.log(button);
                       $("#"+instance.id).append(button);
                     }
