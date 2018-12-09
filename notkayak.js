@@ -18,13 +18,27 @@ $(document).ready(() => {
   });
   
   var build_home = function(airports) {
-    $('#title_text').text('Find your flight here!');
-    $('a[isActive=true]').attr('isActive', false);
-    $('.home_nav').attr('isActive', true);
-    $('#content').empty();
-    $('#content').append('<img src="Header.jpg" class="head_img"></img>').append('<div id="search"></div>').append('<div id="results"></div>');
-    build_search(airports);
-    get_location(airports);
+    $.ajax(root_url + 'airports', {
+      type: 'GET',
+      dataType: 'json',
+      xhrFields: {
+        withCredentials: true
+      },
+      success: (response) => {
+        $('.not_navbar').empty();
+        airports = response;
+        $('#title_text').text('Find your flight here!');
+        $('a[isActive=true]').attr('isActive', false);
+        $('.home_nav').attr('isActive', true);
+        $('#content').empty();
+        $('#content').append('<img src="Header.jpg" class="head_img"></img>').append('<div id="search"></div>').append('<div id="results"></div>');
+        build_search(airports);
+        get_location(airports);
+      },
+      error: () => {
+        alert("Unable to get all airports");
+      }
+    });
 }
 
 var build_navbar = function() {
