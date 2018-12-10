@@ -154,10 +154,74 @@ var build_search = function(airports) {
     }
   }
 
+var build_card = function(id, card){
+  $.ajax(root_url + 'tickets?filter[itinerary_id]=' + id, {
+    type: 'GET',
+    dataType: 'json',
+    xhrFields: {
+      withCredentials: true
+    },
+    success: (response) => {
+      console.log(response);
+      for (let i=0; i< response.length; i++){
+        card.append(
+          '<p> Name:'+response[i].last_name +','+ response[i].first_name +'<br>' +
+           'Gender:' + response[i].gender + '<br>' +
+           'Age:' + response[i].age + '<br>' +
+           'Price Paid:' + response[i].price_paid + '<br></p>'
+        );
+      }
+    },
+    error: () => {
+      alert("Unable to get all airports");
+    }
+  });
+  
+}
+
 var build_my_flights = function() {
     console.log("calling build_my_flights()");
+    //$('#not_navbar').empty();
+    //build_navbar();
+    $('#content').empty();
+
     $('a[isActive=true]').attr('isActive', false);
     $('.flights_nav').attr('isActive', true);
+
+    $.ajax(root_url + 'tickets', {
+      type: 'GET',
+      dataType: 'json',
+      xhrFields: {
+        withCredentials: true
+      },
+      success: (response) => {
+        console.log(response);
+        if (response.length == 0)
+          alert("No Flights!");
+        else{
+          let ids = [];
+          for (let i = 0; i < response.length; i++){
+            let itin_id = response[i].itinerary_id;
+            if(!ids.includes(itin_id))
+              ids.push(itin_id);
+          }
+          let flights = $('<div class = "bookings"></div>');
+          for (let i = 0; i < ids.length; i++){
+            /*build cards for each itinerary*/
+            let card = $('<p></p>').text("Itinerary:" + i);
+            build_card(ids[i], card);
+            //console.log(tickets);
+            flights.append(card);
+          }
+          $('#content').append(flights);
+        }
+
+      },
+      error: () => {
+        alert("Unable to get all airports");
+      }
+    });
+
 }
 
 var build_flight_view = function() {
@@ -435,7 +499,8 @@ $(document).on('click', '.itinerary', function(){
   let itin_id = Math.floor(Math.random() * (1000 - 1)) + 1;
   tickets.attr("id", itin_id);
 
-  let price = Math.random() * (300 - 50) + 50;
+
+  //let price = Math.random() * (300 - 50) + 50;
 
   for (let i = 0; i < num_tickets; i ++){
 
@@ -456,21 +521,21 @@ $(document).on('click', '.itinerary', function(){
   <button type = "button" class= "itbtn"> Complete </button>'
   );
   $('#results').after(tickets);
-  $('#results').css("display", "none");
+  //$('#results').css("display", "none");
 });
 
 $(document).on('click', '.tkbtn', (e) =>{
   let person = $(e.target).parent();
   person.find('input').prop("disabled", true);
 
+
   let departValue = $("input[name='Departure']:checked");
   let returnValue = $("input[name='Return']:checked");
-  
-
+  // console.log('DEPART:', departValue);
+  // console.log('RETURN:', returnValue);
 
 
   if (departValue.length > 0){
-    console.log("DEPART");
     $.ajax(root_url + 'tickets', {
       type: 'POST',
       data: {
@@ -480,6 +545,7 @@ $(document).on('click', '.tkbtn', (e) =>{
           "age":          person.find('[name="age"]').val(),
           "gender":       person.find('[name="gender"]').val(),
           "is_purchased": true,
+          "price_paid":   departValue.attr("price"),
           "instance_id": departValue.attr("id"),
           "itinerary_id": $(".tickets").attr("id")
         }
@@ -498,11 +564,7 @@ $(document).on('click', '.tkbtn', (e) =>{
   }
 
 
-  console.log('MIDDLE');
-
-
   if (returnValue.length > 0){
-    console.log("RETURN");
     $.ajax(root_url + 'tickets', {
       type: 'POST',
       data: {
@@ -512,6 +574,7 @@ $(document).on('click', '.tkbtn', (e) =>{
           "age":          person.find('[name="age"]').val(),
           "gender":       person.find('[name="gender"]').val(),
           "is_purchased": true,
+          "price_paid":   returnValue.attr("price"),
           "instance_id": returnValue.attr("id"),
           "itinerary_id": $(".tickets").attr("id")
         }
@@ -533,11 +596,12 @@ $(document).on('click', '.tkbtn', (e) =>{
 
 $(document).on('click','.itbtn', (e) => {
   
+  let conf_code = Math.random().toString(36).substr(2, 5);
   $.ajax(root_url + 'itineraries ', {
     type: 'POST',
     data: {
       "itinerary": {
-        "confirmation_code": Math.random().toString(36).substr(2, 5),
+        "confirmation_code": conf_code,
         "email": $("input[name='email']").val(),
         "info":  $("input[name='info']").val()
       }
@@ -547,7 +611,8 @@ $(document).on('click','.itbtn', (e) => {
       withCredentials: true
     },
     success: (response) => {
-      console.log(response);
+      $('.tickets').empty();
+      $('.tickets').append($('<p></p>').text(conf_code));
     },
     error: () => {
       alert("Unable submit ticket");
