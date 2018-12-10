@@ -53,6 +53,8 @@ $(document).ready(() => {
     if (navigator.geolocation) {
       navigator.geolocation.watchPosition(function(position) {
         console.log("get_location()")
+        $("#dep_apt_drop").empty();
+        $("#arr_apt_drop").empty();
         set_dep_airport(position, airports);
         if (!hasRun) {
           build_gmaps_interface(airports);
@@ -65,6 +67,9 @@ $(document).ready(() => {
 
 var set_dep_airport = function(position, airports) {
   //finding closest airport
+  codes = [];
+  distances = [];
+  distMap = new Map();
   let minDist = Number.MAX_SAFE_INTEGER;
   myLatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
   for (let i = 0; i < airports.length; i++) {
@@ -153,6 +158,8 @@ var build_search = function(airports) {
     nextWeek.setDate(todayDate.getDate()+7);
     document.getElementById('ret_date').valueAsDate = nextWeek;
     //retrieving list of airports from API
+    $("#dep_apt_drop").empty();
+    $("#arr_apt_drop").empty();
     for (let i = 0; i < airports.length; i++){
       port = airports[i];
       var listitem = '<a id="loc" class="deps" dep_id="'+port.id +'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
@@ -265,8 +272,20 @@ var build_gmaps_interface = function(airports) {
     });
     google.maps.event.addListener(marker, "click", function() {
       console.log(marker.apt);
-      $("#arr_apt").val(marker.apt.name);
-      $("#arr_apt").attr(marker.apt.code);
+      $.ajax(root_url+"airports?filter[code]="+marker.apt.code,{
+        type: 'GET',
+          dataType: 'json',
+          xhrFields: {
+            withCredentials: true
+          },
+          success: (response) => {
+            var code = response[0].code;
+            var name = response[0].name;
+            var apt_id = response[0].id;
+            $("#arr_apt").val(name+" ("+code+")");
+            $("#arr_apt").attr("code",apt_id);
+          },
+      });
     });
     markers.push(marker);
   });
@@ -384,6 +403,7 @@ function searchFlights() {
         
       }
       });
+      console.log($(".dropbtn").text())
       if($(".dropbtn").text()!="One-way"){
         $("#results").append('<div class=arrivals><h2>Return Flight Options</h2></div>')
         $.ajax(root_url + 'flights?filter[departure_id]='+arr_apt+'filter[arrival_id]='+dep_apt, {
@@ -396,6 +416,7 @@ function searchFlights() {
             var flights = response;
             for (let i = 0; i < flights.length; i++){
               let flight = flights[i];
+              console.log("here")
               $.ajax(root_url + 'instances?filter[flight_id]='+flight.id, {
                 type: 'GET',
                 dataType: 'json',
