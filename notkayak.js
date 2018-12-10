@@ -22,7 +22,7 @@ $(document).ready(() => {
     $('#title_text').text('Find your next adventure!');
     $('#content').empty();
      // making slider div now before map, but need to make map first
-    $("#content").append('<div id="slider_div"></div>').append('<div id="map"><div>').append('<div id="search"></div>').append('<div id="results"></div>');
+    $("#content").append('<div id="slider_div"></div>').append('<div id="map"><div>').append('<br><div id="search"></div>').append('<div id="results"></div>');
     $("#slider_div").append('<p><label for="amount">Distance range:</label>\
     <input type="text" id="amount" readonly style="border:0; color:#0099ff; font-weight:bold;"></p> \
     <div id="slider-range"></div><br>');
