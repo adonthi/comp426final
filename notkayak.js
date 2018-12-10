@@ -1,5 +1,9 @@
 var root_url = "http://comp426.cs.unc.edu:3001/";
 var first = 0;
+let minDist = 'N/A'
+var codes;
+var disntaces;
+var distMap;
 $(document).ready(() => {
   build_navbar();
   build_home();
@@ -46,9 +50,9 @@ var get_location = function (airports) {
   }
 
 var set_dep_airport = function(position, airports) {
-  let distMap = new Map();
-  var codes = [];
-  var distances = [];
+  distMap = new Map();
+  codes = [];
+  distances = [];
   //finding closest airport
   let minDist = Number.MAX_SAFE_INTEGER;
   let myLatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -183,6 +187,34 @@ var build_input_area = function() {
 }
 var build_gmaps_interface = function(airports) {
   console.log("calling build_gmaps_interface");
+  $('#content').append('<div id=top></div>');
+  $('#top').append(
+    '<div><div class="label_div" id="dep_label"><label for="dep_apt">Departure Airport</label><input id="dep_apt" class="airport_search" type="text" code="N/A" placeholder="From where?"><div id="dep_apt_drop" class="dropdown-content2"></div></div> \
+    <div class="label_div" id="arr_label"><label for="arr_apt">Arrival Airport</label><input id="arr_apt" class="airport_search" type="text" code="N/A" placeholder="To where?"><div id="arr_apt_drop" class="dropdown-content3"></div></div> \
+    <div class="label_div" id="depdate_label"><label for="dep_date">When are you leaving?</label><input class="date" type="date" id="dep_date"></div>');
+    let todayDate = new Date();
+    document.getElementById('dep_date').valueAsDate = todayDate;
+  for(let i = 0; i < airports.length; i++){
+    var port = airports[codes.indexOf(distMap.get(distances[i]))];
+    var item = '<a id="loc" class="deps" dep_id="'+port.id +'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
+    $("#dep_apt_drop").append(item);
+    var item = '<a id="loc" class="arrs" arr_id="'+port.id +'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
+    $("#arr_apt_drop").prepend(item);
+  }
+  $.ajax(root_url+"airports?filter[code]="+distMap.get(distances[0]),{
+    type: 'GET',
+      dataType: 'json',
+      xhrFields: {
+        withCredentials: true
+      },
+      success: (response) => {
+        var code = response[0].code;
+        var name = response[0].name;
+        var apt_id = response[0].id;
+        $("#dep_apt").val(name+" ("+code+")");
+        $("#dep_apt").attr("code",apt_id);
+      },
+  })
   $('#content').append('<div id="map"><div>');
   let map = new google.maps.Map(document.getElementById('map'), {
     zoom: 4.65,
