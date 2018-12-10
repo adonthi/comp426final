@@ -1,10 +1,12 @@
 var root_url = "http://comp426.cs.unc.edu:3001/";
 var first = 0;
 let minDist = 'N/A'
-var codes;
-var disntaces;
-var distMap;
+let codes = [];
+let distances = [];
+let markers = [];
+let distMap = new Map();
 var myLatLong;
+let map;
 $(document).ready(() => {
   build_navbar();
   build_home();
@@ -50,9 +52,6 @@ var get_location = function (airports) {
   }
 
 var set_dep_airport = function(position, airports) {
-  distMap = new Map();
-  codes = [];
-  distances = [];
   //finding closest airport
   let minDist = Number.MAX_SAFE_INTEGER;
   myLatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -279,7 +278,7 @@ var build_gmaps_interface = function(airports) {
 
   //google maps part
   $('#content').append('<div id="map"><div>');
-  let map = new google.maps.Map(document.getElementById('map'), {
+  map = new google.maps.Map(document.getElementById('map'), {
     zoom: 4.65,
     //defaulting to center of US
     center: new google.maps.LatLng(39.8283, -98.5796),
@@ -289,7 +288,7 @@ var build_gmaps_interface = function(airports) {
   var icons = {airport:{icon: {url: "airport_icon.png", scaledSize: new google.maps.Size(35, 35)}}};
 
   for (let i = 0; i < airports.length; i++) {
-    features.push({position: new google.maps.LatLng(airports[i].latitude, airports[i].longitude), type: "airport", apt: airports[i]});
+    features.push({position: new google.maps.LatLng(airports[i].latitude, airports[i].longitude), type: "airport", apt: airports[i], code: codes[i]});
   }
   features.forEach(function(feature) {
     var marker = new google.maps.Marker({
@@ -298,7 +297,8 @@ var build_gmaps_interface = function(airports) {
       map: map,
       animation: google.maps.Animation.DROP,
       apt: feature.apt,
-      dist: google.maps.geometry.spherical.computeDistanceBetween(myLatLong, new google.maps.LatLng(feature.apt.latitude, feature.apt.longitude))
+      dist: google.maps.geometry.spherical.computeDistanceBetween(myLatLong, new google.maps.LatLng(feature.apt.latitude, feature.apt.longitude)),
+      code: feature.code
     });
     google.maps.event.addListener(marker, 'mouseover', function() {
       marker.setIcon({url: "airport_icon_green.png", scaledSize: new google.maps.Size(35, 35)});
@@ -306,8 +306,11 @@ var build_gmaps_interface = function(airports) {
     google.maps.event.addListener(marker, "mouseout", function() {
       marker.setIcon({url: "airport_icon.png", scaledSize: new google.maps.Size(35, 35)});
     });
+    markers.push(marker);
   });
+  console.log(markers);
   let circ = setCircle(map, DEFAULT_CIRCLE_RADIUS);
+  filterMarkers(DEFAULT_CIRCLE_RADIUS);
   //making slider part
   $("#slider_div").append('<p><label for="amount">Distance range:</label>\
   <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;"></p> \
@@ -322,6 +325,7 @@ var build_gmaps_interface = function(airports) {
       slide: function( event, ui ) {
         $( "#amount" ).val( (ui.value/1000)+ "km");
         updateRadius(map, ui.value, circ);
+        filterMarkers(ui.value);
       }
     });
     $( "#amount" ).val(($( "#slider-range" ).slider( "value"))/1000 +"km");
@@ -343,6 +347,17 @@ var setCircle = function(map, DEFAULT_CIRCLE_RADIUS) {
 var updateRadius = function(map, value, circ) {
   circ.setRadius(value);
 }
+var filterMarkers = function(distance) {
+  markers.forEach(function(marker) {
+    if (marker.dist > distance) {
+      marker.setMap(null);
+    } else {
+      marker.setMap(map);
+    }
+  }) 
+}
+
+
 /* When the user clicks on the button, 
 toggle between hiding and showing the dropdown content */
 function myFunction() {
