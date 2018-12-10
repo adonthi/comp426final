@@ -8,6 +8,7 @@ let distMap = new Map();
 var myLatLong;
 let map;
 let hasRun = false;
+let currentlocation = null;
 $(document).ready(() => {
   build_navbar();
   build_home();
@@ -50,20 +51,32 @@ $(document).ready(() => {
     .append('<li><a class="flight_view_nav" isActive=false onclick="build_flight_view()">Flight View</a></li>');
   }
   var get_location = function (airports) {
-    if (navigator.geolocation) {
-      navigator.geolocation.watchPosition(function(position) {
-        console.log("get_location()")
+    if(currentlocation == null){
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(function(position) {
+          if (!hasRun) {
+            currentlocation = position;
+            console.log("get_location()")
+            $("#dep_apt_drop").empty();
+            $("#arr_apt_drop").empty();
+            set_dep_airport(position, airports);
+            build_gmaps_interface(airports);
+            hasRun = true;
+          }
+        }, showError);
+      } else { 
+        x.innerHTML = "Geolocation is not supported by this browser.";}
+    }else{
+      if (!hasRun) {
+        position = currentlocation;
+        console.log("get_location()2")
         $("#dep_apt_drop").empty();
         $("#arr_apt_drop").empty();
         set_dep_airport(position, airports);
-        console.log(hasRun);
-        if (!hasRun) {
-          build_gmaps_interface(airports);
-          hasRun = true;
-        }
-      }, showError);
-  } else { 
-      x.innerHTML = "Geolocation is not supported by this browser.";}
+        build_gmaps_interface(airports);
+        hasRun = true;
+      }
+    }
   }
 
 var set_dep_airport = function(position, airports) {
