@@ -4,6 +4,7 @@ let minDist = 'N/A'
 var codes;
 var disntaces;
 var distMap;
+var myLatLong;
 $(document).ready(() => {
   build_navbar();
   build_home();
@@ -55,7 +56,7 @@ var set_dep_airport = function(position, airports) {
   distances = [];
   //finding closest airport
   let minDist = Number.MAX_SAFE_INTEGER;
-  let myLatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+  myLatLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
   for (let i = 0; i < airports.length; i++) {
     codes.push(airports[i].code);
     let aLatLong = new google.maps.LatLng(airports[i].latitude, airports[i].longitude);
@@ -210,7 +211,6 @@ var build_my_flights = function() {
             /*build cards for each itinerary*/
             let card = $('<p></p>').text("Itinerary:" + i);
             build_card(ids[i], card);
-            //console.log(tickets);
             flights.append(card);
           }
           $('#content').append(flights);
@@ -230,7 +230,6 @@ var build_flight_view = function() {
     $('.flight_view_nav').attr('isActive', true);
     $('#title_text').text('Find your next adventure!');
     $('#content').empty();
-    build_input_area();
     $.ajax(root_url + 'airports', {
       type: 'GET',
       dataType: 'json',
@@ -244,18 +243,21 @@ var build_flight_view = function() {
         alert("Unable to get all airports");
       }
     });
-
 }
-var build_input_area = function() {
 
-}
 var build_gmaps_interface = function(airports) {
+  let DEFAULT_CIRCLE_RADIUS = 250 * 1000;
   console.log("calling build_gmaps_interface");
   $('#content').append('<div id=top></div>');
   $('#top').append(
-    '<div><div class="label_div" id="dep_label"><label for="dep_apt">Departure Airport</label><input id="dep_apt" class="airport_search" type="text" code="N/A" placeholder="From where?"><div id="dep_apt_drop" class="dropdown-content2"></div></div> \
-    <div class="label_div" id="arr_label"><label for="arr_apt">Arrival Airport</label><input id="arr_apt" class="airport_search" type="text" code="N/A" placeholder="To where?"><div id="arr_apt_drop" class="dropdown-content3"></div></div> \
-    <div class="label_div" id="depdate_label"><label for="dep_date">When are you leaving?</label><input class="date" type="date" id="dep_date"></div>');
+    '<div><div class="label_div" id="dep_label"><label for="dep_apt">Departure Airport</label> \
+    <input id="dep_apt" class="airport_search" type="text" code="N/A" placeholder="From where?"> \
+    <div id="dep_apt_drop" class="dropdown-content2"></div></div> \
+    <div class="label_div" id="arr_label"><label for="arr_apt">Arrival Airport</label> \
+    <input id="arr_apt" class="airport_search" type="text" code="N/A" placeholder="To where?"> \
+    <div id="arr_apt_drop" class="dropdown-content3"></div></div> \
+    <div class="label_div" id="depdate_label"><label for="dep_date">When are you leaving?</label> \
+    <input class="date" type="date" id="dep_date"></div>');
     let todayDate = new Date();
     document.getElementById('dep_date').valueAsDate = todayDate;
   for(let i = 0; i < airports.length; i++){
@@ -278,7 +280,11 @@ var build_gmaps_interface = function(airports) {
         $("#dep_apt").val(name+" ("+code+")");
         $("#dep_apt").attr("code",apt_id);
       },
-  })
+  });
+  // making slider div now before map, but need to make map first
+  $("#content").append('<div id="slider_div"></div>');
+
+  //google maps part
   $('#content').append('<div id="map"><div>');
   let map = new google.maps.Map(document.getElementById('map'), {
     zoom: 4.65,
@@ -288,25 +294,62 @@ var build_gmaps_interface = function(airports) {
   });
   var features = [];
   var icons = {airport:{icon: {url: "airport_icon.png", scaledSize: new google.maps.Size(35, 35)}}};
+
   for (let i = 0; i < airports.length; i++) {
-    features.push({position: new google.maps.LatLng(airports[i].latitude, airports[i].longitude), type: "airport"});
+    features.push({position: new google.maps.LatLng(airports[i].latitude, airports[i].longitude), type: "airport", apt: airports[i]});
   }
   features.forEach(function(feature) {
     var marker = new google.maps.Marker({
       position: feature.position,
       icon: icons[feature.type].icon,
       map: map,
-      animation: google.maps.Animation.DROP
+      animation: google.maps.Animation.DROP,
+      apt: feature.apt,
+      dist: google.maps.geometry.spherical.computeDistanceBetween(myLatLong, new google.maps.LatLng(feature.apt.latitude, feature.apt.longitude))
     });
     google.maps.event.addListener(marker, 'mouseover', function() {
-      console.log("hovering over");
-      console.log(marker);
       marker.setIcon({url: "airport_icon_green.png", scaledSize: new google.maps.Size(35, 35)});
     });
     google.maps.event.addListener(marker, "mouseout", function() {
       marker.setIcon({url: "airport_icon.png", scaledSize: new google.maps.Size(35, 35)});
     });
   });
+  let circ = setCircle(map, DEFAULT_CIRCLE_RADIUS);
+  //making slider part
+  $("#slider_div").append('<p><label for="amount">Distance range:</label>\
+  <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;"></p> \
+  <div id="slider-range"></div><br>');
+
+  $( function() {
+    $( "#slider-range" ).slider({
+      range: "max",
+      min: DEFAULT_CIRCLE_RADIUS,
+      max: 4000000,
+      value: (DEFAULT_CIRCLE_RADIUS/1000),
+      slide: function( event, ui ) {
+        $( "#amount" ).val( (ui.value/1000)+ "km");
+        updateRadius(map, ui.value, circ);
+      }
+    });
+    $( "#amount" ).val(($( "#slider-range" ).slider( "value"))/1000 +"km");
+  } );
+}
+var setCircle = function(map, DEFAULT_CIRCLE_RADIUS) {
+  var circle = new google.maps.Circle({
+    strokeColor: '#0099ff',
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    fillColor: '#0099ff',
+    fillOpacity: 0.35,
+    map: map,
+    center: myLatLong,
+    radius: DEFAULT_CIRCLE_RADIUS
+  });
+  return circle;
+}
+var updateRadius = function(map, value, circ) {
+  circ.setRadius(value);
+
 }
 /* When the user clicks on the button, 
 toggle between hiding and showing the dropdown content */
@@ -527,14 +570,8 @@ $(document).on('click', '.itinerary', function(){
 $(document).on('click', '.tkbtn', (e) =>{
   let person = $(e.target).parent();
   person.find('input').prop("disabled", true);
-
-
   let departValue = $("input[name='Departure']:checked");
   let returnValue = $("input[name='Return']:checked");
-  // console.log('DEPART:', departValue);
-  // console.log('RETURN:', returnValue);
-
-
   if (departValue.length > 0){
     $.ajax(root_url + 'tickets', {
       type: 'POST',
