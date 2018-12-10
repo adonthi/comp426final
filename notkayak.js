@@ -56,6 +56,7 @@ $(document).ready(() => {
         $("#dep_apt_drop").empty();
         $("#arr_apt_drop").empty();
         set_dep_airport(position, airports);
+        console.log(hasRun);
         if (!hasRun) {
           build_gmaps_interface(airports);
           hasRun = true;
@@ -198,6 +199,7 @@ var build_my_flights = function() {
     console.log("calling build_my_flights()");
     //$('#not_navbar').empty();
     //build_navbar();
+    hasRun=false;
     $('#content').empty();
 
     $('a[isActive=true]').attr('isActive', false);
