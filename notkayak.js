@@ -7,6 +7,7 @@ let markers = [];
 let distMap = new Map();
 var myLatLong;
 let map;
+let hasRun = false;
 $(document).ready(() => {
   build_navbar();
   build_home();
@@ -14,11 +15,16 @@ $(document).ready(() => {
 
   var build_home = function() {
     console.log("calling build_home()");
-    $('#title_text').text('Find your flight here!');
+    console.log("calling the method formerly known as build_flight_view()");
     $('a[isActive=true]').attr('isActive', false);
     $('.home_nav').attr('isActive', true);
+    $('#title_text').text('Find your next adventure!');
     $('#content').empty();
-    $('#content').append('<img src="Header.jpg" class="head_img"></img>').append('<div id="search"></div>').append('<div id="results"></div>');
+     // making slider div now before map, but need to make map first
+    $("#content").append('<div id="slider_div"></div>').append('<div id="map"><div>').append('<div id="search"></div>').append('<div id="results"></div>');
+    $("#slider_div").append('<p><label for="amount">Distance range:</label>\
+    <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;"></p> \
+    <div id="slider-range"></div><br>');
     $.ajax(root_url + 'airports', {
       type: 'GET',
       dataType: 'json',
@@ -26,6 +32,7 @@ $(document).ready(() => {
         withCredentials: true
       },
       success: (response) => {
+        console.log("AJAX SUCCESS")
         build_search(response);
         get_location(response);
       },
@@ -33,19 +40,24 @@ $(document).ready(() => {
         alert("Unable to get all airports");
       }
     });
-}
-
-var build_navbar = function() {
+  }
+  
+  var build_navbar = function() {
     $('#navbar').append('<ul id="navbar_list"></ul>')
     $('#navbar_list').append('<li><p id="title">NOT KAYAK</p></li>')
     .append('<li><a class="home_nav" isActive=false onclick="build_home()">Home</a></li>')
     .append('<li><a class="flights_nav" isActive=false onclick="build_my_flights()">My Flights</a></li>')
     .append('<li><a class="flight_view_nav" isActive=false onclick="build_flight_view()">Flight View</a></li>');
-}
-var get_location = function (airports) {
-  if (navigator.geolocation) {
+  }
+  var get_location = function (airports) {
+    if (navigator.geolocation) {
       navigator.geolocation.watchPosition(function(position) {
+        console.log("get_location()")
         set_dep_airport(position, airports);
+        if (!hasRun) {
+          build_gmaps_interface(airports);
+          hasRun = true;
+        }
       }, showError);
   } else { 
       x.innerHTML = "Geolocation is not supported by this browser.";}
@@ -108,6 +120,7 @@ var showError = function(error) {
   }
 }
 var build_search = function(airports) {
+    console.log("build search");
     $('#search').empty();
     $('#search').append('<div id="dropdowns"></div>');
     $('#search').append('<br>')
@@ -147,7 +160,7 @@ var build_search = function(airports) {
       var listitem = '<a id="loc" class="arrs" arr_id="'+port.id+'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
       $("#arr_apt_drop").append(listitem);
     }
-  }
+}
 
 var build_card = function(id, card){
   $.ajax(root_url + 'tickets?filter[itinerary_id]=' + id, {
@@ -217,67 +230,11 @@ var build_my_flights = function() {
 }
 
 var build_flight_view = function() {
-    console.log("calling build_flight_view()");
-    $('a[isActive=true]').attr('isActive', false);
-    $('.flight_view_nav').attr('isActive', true);
-    $('#title_text').text('Find your next adventure!');
-    $('#content').empty();
-    $.ajax(root_url + 'airports', {
-      type: 'GET',
-      dataType: 'json',
-      xhrFields: {
-        withCredentials: true
-      },
-      success: (response) => {
-        build_gmaps_interface(response);
-      },
-      error: () => {
-        alert("Unable to get all airports");
-      }
-    });
 }
 
 var build_gmaps_interface = function(airports) {
   let DEFAULT_CIRCLE_RADIUS = 250 * 1000;
   console.log("calling build_gmaps_interface");
-  $('#content').append('<div id=top></div>');
-  $('#top').append(
-    '<div><div class="label_div" id="dep_label"><label for="dep_apt">Departure Airport</label> \
-    <input id="dep_apt" class="airport_search" type="text" code="N/A" placeholder="From where?"> \
-    <div id="dep_apt_drop" class="dropdown-content2"></div></div> \
-    <div class="label_div" id="arr_label"><label for="arr_apt">Arrival Airport</label> \
-    <input id="arr_apt" class="airport_search" type="text" code="N/A" placeholder="To where?"> \
-    <div id="arr_apt_drop" class="dropdown-content3"></div></div> \
-    <div class="label_div" id="depdate_label"><label for="dep_date">When are you leaving?</label> \
-    <input class="date" type="date" id="dep_date"></div>');
-    let todayDate = new Date();
-    document.getElementById('dep_date').valueAsDate = todayDate;
-  for(let i = 0; i < airports.length; i++){
-    var port = airports[codes.indexOf(distMap.get(distances[i]))];
-    var item = '<a id="loc" class="deps" dep_id="'+port.id +'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
-    $("#dep_apt_drop").append(item);
-    var item = '<a id="loc" class="arrs" arr_id="'+port.id +'" name="'+port.name+'" code="'+port.code+'">'+port.name+' ('+port.code+') </a>'
-    $("#arr_apt_drop").prepend(item);
-  }
-  $.ajax(root_url+"airports?filter[code]="+distMap.get(distances[0]),{
-    type: 'GET',
-      dataType: 'json',
-      xhrFields: {
-        withCredentials: true
-      },
-      success: (response) => {
-        var code = response[0].code;
-        var name = response[0].name;
-        var apt_id = response[0].id;
-        $("#dep_apt").val(name+" ("+code+")");
-        $("#dep_apt").attr("code",apt_id);
-      },
-  });
-  // making slider div now before map, but need to make map first
-  $("#content").append('<div id="slider_div"></div>');
-
-  //google maps part
-  $('#content').append('<div id="map"><div>');
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 4.65,
     //defaulting to center of US
@@ -316,10 +273,6 @@ var build_gmaps_interface = function(airports) {
   console.log(markers);
   let circ = setCircle(map, DEFAULT_CIRCLE_RADIUS);
   filterMarkers(DEFAULT_CIRCLE_RADIUS);
-  //making slider part
-  $("#slider_div").append('<p><label for="amount">Distance range:</label>\
-  <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;"></p> \
-  <div id="slider-range"></div><br>');
 
   $( function() {
     $( "#slider-range" ).slider({
