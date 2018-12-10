@@ -10,7 +10,6 @@ $(document).ready(() => {
   build_home();
 });
 
-  
   var build_home = function() {
     console.log("calling build_home()");
     $('#title_text').text('Find your flight here!');
@@ -78,7 +77,6 @@ var set_dep_airport = function(position, airports) {
     $("#arr_apt_drop").prepend(item);
   }
 
-  //TODO - SET DEP_APT DEFAULT VALUE
   $.ajax(root_url+"airports?filter[code]="+distMap.get(minDist),{
     type: 'GET',
       dataType: 'json',
@@ -93,10 +91,7 @@ var set_dep_airport = function(position, airports) {
         $("#dep_apt").attr("code",apt_id);
       },
   })
-
 }
-
-
 var showError = function(error) {
   switch(error.code) {
       case error.PERMISSION_DENIED:
@@ -215,13 +210,11 @@ var build_my_flights = function() {
           }
           $('#content').append(flights);
         }
-
       },
       error: () => {
         alert("Unable to get all airports");
       }
     });
-
 }
 
 var build_flight_view = function() {
@@ -349,7 +342,6 @@ var setCircle = function(map, DEFAULT_CIRCLE_RADIUS) {
 }
 var updateRadius = function(map, value, circ) {
   circ.setRadius(value);
-
 }
 /* When the user clicks on the button, 
 toggle between hiding and showing the dropdown content */
@@ -414,8 +406,7 @@ function searchFlights() {
                 }
               }
             }
-          });
-          
+          }); 
         }
         
       }
@@ -541,12 +532,8 @@ $(document).on('click', '.itinerary', function(){
   let tickets = $('<div class = "tickets"></div>');
   let itin_id = Math.floor(Math.random() * (1000 - 1)) + 1;
   tickets.attr("id", itin_id);
-
-
   //let price = Math.random() * (300 - 50) + 50;
-
   for (let i = 0; i < num_tickets; i ++){
-
     let person = $('<div class="tkinfo"></div>').text("Passenger " + (i+1));
     //person.append('<p></p>');
     person.append(
@@ -600,7 +587,6 @@ $(document).on('click', '.tkbtn', (e) =>{
     });
   }
 
-
   if (returnValue.length > 0){
     $.ajax(root_url + 'tickets', {
       type: 'POST',
@@ -628,7 +614,6 @@ $(document).on('click', '.tkbtn', (e) =>{
       }
     });
   }
-  
 });
 
 $(document).on('click','.itbtn', (e) => {
@@ -655,13 +640,7 @@ $(document).on('click','.itbtn', (e) => {
       alert("Unable submit ticket");
     }
   });
-
-
 });
-
-
-
-
 
 
 window.onclick = function(event) {
@@ -689,7 +668,6 @@ window.onclick = function(event) {
     first = 0;
   }
   if (!event.target.matches('#arr_apt')) {
-
     var dropdowns = document.getElementsByClassName("dropdown-content3");
     var i;
     for (i = 0; i < dropdowns.length; i++) {
