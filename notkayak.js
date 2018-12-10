@@ -306,6 +306,11 @@ var build_gmaps_interface = function(airports) {
     google.maps.event.addListener(marker, "mouseout", function() {
       marker.setIcon({url: "airport_icon.png", scaledSize: new google.maps.Size(35, 35)});
     });
+    google.maps.event.addListener(marker, "click", function() {
+      console.log(marker.apt);
+      $("#arr_apt").val(marker.apt.name);
+      $("#arr_apt").attr(marker.apt.code);
+    });
     markers.push(marker);
   });
   console.log(markers);

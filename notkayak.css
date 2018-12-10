@@ -144,7 +144,7 @@ button:hover, button:focus {
     text-align: center;
 }
 #navbar {
-    z-index: 1;
+    z-index: 10;
 }
 /* Change color of dropdown links on hover */
 .dropdown-content a:hover , .dropdown-content2 a:hover,.dropdown-content3 a:hover {background-color: #ddd}
