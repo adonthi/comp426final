@@ -48,7 +48,6 @@ $(document).ready(() => {
     $('#navbar_list').append('<li><p id="title">NOT KAYAK</p></li>')
     .append('<li><a class="home_nav" isActive=false onclick="build_home()">Home</a></li>')
     .append('<li><a class="flights_nav" isActive=false onclick="build_my_flights()">My Flights</a></li>')
-    .append('<li><a class="flight_view_nav" isActive=false onclick="build_flight_view()">Flight View</a></li>');
   }
   var get_location = function (airports) {
     if(currentlocation == null){
