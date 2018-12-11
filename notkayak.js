@@ -22,7 +22,7 @@ $(document).ready(() => {
     $('#title_text').text('Find your next adventure!');
     $('#content').empty();
      // making slider div now before map, but need to make map first
-    $("#content").append('<div id="slider_div"></div>').append('<div id="map"><div>').append('<br><div id="search"></div>').append('<div id="results"></div>');
+    $("#content").append('<div id="slider_div"></div>').append('<div id="map"><div>').append('<br><div id="search"></div>');
     $("#slider_div").append('<p><label for="amount">Distance range:</label>\
     <input type="text" id="amount" readonly style="border:0; color:#0099ff; font-weight:bold;"></p> \
     <div id="slider-range"></div><br>');
@@ -414,7 +414,8 @@ function searchFlights() {
     var arr_apt = $("#arr_apt").attr("code");
     var dep_date = $("#dep_date").val();
     var ret_date = $("#ret_date").val();
-    $("#results").empty();
+    $("#results").remove();
+    $("#content").append('<div id="results"></div>')
     $("#results").append('<div class=departures><h2>Departure Flight Options</h2></div>')
     $.ajax(root_url + 'flights?filter[departure_id]='+dep_apt+'&filter[arrival_id]='+arr_apt, {
       type: 'GET',
@@ -641,7 +642,8 @@ $(document).on('click', '.tkbtn', (e) =>{
             "seat": {
                 "plane_id": departValue.attr("plane"),
                 "row": Math.floor(Math.random() * (30 - 1)) + 1,
-                "number": cap.charAt(Math.floor(Math.random() * cap.length))
+                "number": cap.charAt(Math.floor(Math.random() * cap.length)),
+                "info": "taken"
             }
         }, 
         dataType:'json',
@@ -688,7 +690,8 @@ $(document).on('click', '.tkbtn', (e) =>{
             "seat": {
                 "plane_id": returnValue.attr("plane"),
                 "row": Math.floor(Math.random() * (30 - 1)) + 1,
-                "number": cap.charAt(Math.floor(Math.random() * cap.length))
+                "number": cap.charAt(Math.floor(Math.random() * cap.length)),
+                "info" : "taken"
             }
         }, 
         dataType:'json',
