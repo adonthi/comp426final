@@ -264,6 +264,8 @@ var build_my_flights = function() {
     //build_navbar();
     hasRun=false;
     $('#content').empty();
+    $('#title_text').text('My Flights');
+
 
     $('a[isActive=true]').attr('isActive', false);
     $('.flights_nav').attr('isActive', true);
