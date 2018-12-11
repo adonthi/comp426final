@@ -301,6 +301,22 @@ var build_my_flights = function() {
         alert("Unable to get all airports");
       }
     });
+    console.log('added');
+    $('#content').append('<div class="taken_seats"></div>');
+    $('.taken_seats').append('<h2>The following are a list of taken seats</h2>')
+    $.ajax(root_url + 'seats?filter[info]=taken', {
+      type: 'GET',
+      dataType: 'json',
+      xhrFields: {
+        withCredentials: true
+      },
+      success: (response) => {
+        taken_seats = response;
+        for (let i = 0; i < response.length; i++){
+          $('.taken_seats').append('<p>This a taken seat: ' + taken_seats[i].number + ' ' + taken_seats[i].row + ' on flight number: '+ taken_seats[i].plane_id+'</p>');
+        }
+      }
+    })
 }
 
 
