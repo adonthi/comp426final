@@ -449,7 +449,7 @@ function searchFlights() {
                   }
                   let price = 0;
                   price = 1 + (Math.random()*100).toFixed(2);
-                  $("#"+instance.id).append('<div class="container"><input type="radio" id="'+instance.id+'" name="Departure" price="'+price+'"> \
+                  $("#"+instance.id).append('<div class="container"><input type="radio" id="'+instance.id+'" name="Departure" price="'+price+'" plane="'+flight.plane_id+'"> \
                   <span class="checkmark"></span></div> \
                   <div class="results"> \
                   <div class="res date"> \
@@ -512,7 +512,7 @@ function searchFlights() {
                       }
                       let price = 0;
                       price = 1 + (Math.random()*100).toFixed(2);
-                      var input = '<div class="container"><input type="radio" id="'+instance.id+'" name="Return" price="'+price+'"> \
+                      var input = '<div class="container"><input type="radio" id="'+instance.id+'" name="Return" price="'+price+'" plane="'+flight.plane_id+'"> \
                       <span class="checkmark"></span></div> \
                       <div class="results"> \
                       <div class="res date"> \
@@ -596,6 +596,7 @@ $(document).on("keyup",".airport_search",function(){
 });
 //build ticket interface
 $(document).on('click', '.itinerary', function(){
+  $('.tickets').remove();
   let num_tickets = $('#pcount').val();
   let departValue = $("input[name='Departure']:checked");
   let returnValue = $("input[name='Return']:checked");
@@ -606,21 +607,22 @@ $(document).on('click', '.itinerary', function(){
   tickets.attr("id", itin_id);
   //let price = Math.random() * (300 - 50) + 50;
   for (let i = 0; i < num_tickets; i ++){
-    let person = $('<div class="tkinfo"></div>').text("Passenger " + (i+1));
+    let person = $('<div class="tkinfo"></div>');
+    person.append('<h2 class ="pass">Passenger ' + (i+1) +'</h2>');
     //person.append('<p></p>');
     person.append(
       '<input type="text" name="fname" placeholder="First name"><br> \
        <input type="text" name="lname" placeholder="Last name"><br> \
        <input type="text" name="age" placeholder="Age"><br> \
        <input type="text" name="gender" placeholder="Gender"><br> \
-       <button type = "button" class="tkbtn">Submit</button>'
+       <button type = "button" class="tkbtn">Submit Passenger Info</button>'
     );
     tickets.append(person);
   }
   tickets.append(
   '<input type="text" name="email" placeholder="kmp@cs.unc.edu"><br> \
   <input type="text" name="info" placeholder="Notes"><br> \
-  <button type = "button" class= "itbtn"> Complete </button>'
+  <button type = "button" class= "itbtn"> Complete Itinerary </button>'
   );
   $('#results').after(tickets);
   //$('#results').css("display", "none");
@@ -631,59 +633,97 @@ $(document).on('click', '.tkbtn', (e) =>{
   person.find('input').prop("disabled", true);
   let departValue = $("input[name='Departure']:checked");
   let returnValue = $("input[name='Return']:checked");
+  const cap = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
   if (departValue.length > 0){
-    $.ajax(root_url + 'tickets', {
-      type: 'POST',
-      data: {
-        "ticket": {
-          "first_name":   person.find('[name="fname"]').val(),
-          "last_name":    person.find('[name="lname"]').val(),
-          "age":          person.find('[name="age"]').val(),
-          "gender":       person.find('[name="gender"]').val(),
-          "is_purchased": true,
-          "price_paid":   departValue.attr("price"),
-          "instance_id": departValue.attr("id"),
-          "itinerary_id": $(".tickets").attr("id")
+    $.ajax(root_url + 'seats', {
+        type: 'POST',
+        data: {
+            "seat": {
+                "plane_id": departValue.attr("plane"),
+                "row": Math.floor(Math.random() * (30 - 1)) + 1,
+                "number": cap.charAt(Math.floor(Math.random() * cap.length))
+            }
+        }, 
+        dataType:'json',
+        xhrFields: {
+            withCredentials: true
         }
-      },
-      dataType: "json",
-      xhrFields: {
-        withCredentials: true
-      },
-      success: (response) => {
-        /*ignore*/
-      },
-      error: () => {
-        alert("Unable submit ticket");
-      }
+    }).then(function(data) {
+        // .then() returns a new promise
+        console.log('DEPART:', data.id);
+        return $.ajax(root_url + 'tickets', {
+            type: 'POST',
+            data: {
+              "ticket": {
+                "first_name":   person.find('[name="fname"]').val(),
+                "last_name":    person.find('[name="lname"]').val(),
+                "age":          person.find('[name="age"]').val(),
+                "gender":       person.find('[name="gender"]').val(),
+                "is_purchased": true,
+                "price_paid":   departValue.attr("price"),
+                "instance_id": departValue.attr("id"),
+                "itinerary_id": $(".tickets").attr("id"),
+                "seat_id": data.id
+              }
+            },
+            dataType: "json",
+            xhrFields: {
+              withCredentials: true
+            },
+            success: (response) => {
+              /*ignore*/
+            },
+            error: () => {
+              alert("Unable submit ticket");
+            }
+        });
     });
   }
 
   if (returnValue.length > 0){
-    $.ajax(root_url + 'tickets', {
-      type: 'POST',
-      data: {
-        "ticket": {
-          "first_name":   person.find('[name="fname"]').val(),
-          "last_name":    person.find('[name="lname"]').val(),
-          "age":          person.find('[name="age"]').val(),
-          "gender":       person.find('[name="gender"]').val(),
-          "is_purchased": true,
-          "price_paid":   returnValue.attr("price"),
-          "instance_id": returnValue.attr("id"),
-          "itinerary_id": $(".tickets").attr("id")
+
+    $.ajax(root_url + 'seats', {
+        type: 'POST',
+        data: {
+            "seat": {
+                "plane_id": returnValue.attr("plane"),
+                "row": Math.floor(Math.random() * (30 - 1)) + 1,
+                "number": cap.charAt(Math.floor(Math.random() * cap.length))
+            }
+        }, 
+        dataType:'json',
+        xhrFields: {
+            withCredentials: true
         }
-      },
-      dataType: "json",
-      xhrFields: {
-        withCredentials: true
-      },
-      success: (response) => {
-        console.log(response);
-      },
-      error: () => {
-        alert("Unable submit ticket");
-      }
+    }).then(function(data) {
+        // .then() returns a new promise
+        console.log('RETURN:', data.id);
+        return $.ajax(root_url + 'tickets', {
+            type: 'POST',
+            data: {
+              "ticket": {
+                "first_name":   person.find('[name="fname"]').val(),
+                "last_name":    person.find('[name="lname"]').val(),
+                "age":          person.find('[name="age"]').val(),
+                "gender":       person.find('[name="gender"]').val(),
+                "is_purchased": true,
+                "price_paid":   returnValue.attr("price"),
+                "instance_id": returnValue.attr("id"),
+                "itinerary_id": $(".tickets").attr("id"),
+                "seat_id": data.id
+              }
+            },
+            dataType: "json",
+            xhrFields: {
+              withCredentials: true
+            },
+            success: (response) => {
+              /*ignore*/
+            },
+            error: () => {
+              alert("Unable submit ticket");
+            }
+        });
     });
   }
 });
@@ -705,8 +745,13 @@ $(document).on('click','.itbtn', (e) => {
       withCredentials: true
     },
     success: (response) => {
-      $('.tickets').empty();
-      $('.tickets').append($('<p></p>').text(conf_code));
+        $('.tickets').empty();
+        $('.tickets').append($('<p></p>').text("Your booking has been successfully submitted with confirmation code" + conf_code));
+    //   $('.tickets').empty();
+    //   $('.tickets').append($('<p></p>').text("Your booking has been \
+    //                                         successfully submitted \
+    //                                         with confirmation code" + conf_code));
+    // $('#results').empty();
     },
     error: () => {
       alert("Unable submit ticket");
