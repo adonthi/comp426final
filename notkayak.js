@@ -415,6 +415,7 @@ function searchFlights() {
     var dep_date = $("#dep_date").val();
     var ret_date = $("#ret_date").val();
     $("#results").remove();
+    $(".tickets").remove();
     $("#content").append('<div id="results"></div>')
     $("#results").append('<div class=departures><h2>Departure Flight Options</h2></div>')
     $.ajax(root_url + 'flights?filter[departure_id]='+dep_apt+'&filter[arrival_id]='+arr_apt, {
@@ -760,6 +761,7 @@ $(document).on('click','.itbtn', (e) => {
       alert("Unable submit ticket");
     }
   });
+  $("#results").remove();
 });
 
 
