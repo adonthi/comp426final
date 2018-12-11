@@ -313,7 +313,7 @@ var build_my_flights = function() {
       success: (response) => {
         taken_seats = response;
         for (let i = 0; i < response.length; i++){
-          $('.taken_seats').append('<p>This a taken seat: ' + taken_seats[i].number + ' ' + taken_seats[i].row + ' on flight number: '+ taken_seats[i].plane_id+'</p>');
+          $('.taken_seats').append('<p>' + taken_seats[i].number + ' ' + taken_seats[i].row + ' on flight number: '+ taken_seats[i].plane_id+'</p>');
         }
       }
     })
