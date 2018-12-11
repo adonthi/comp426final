@@ -416,7 +416,7 @@ function searchFlights() {
     var ret_date = $("#ret_date").val();
     $("#results").empty();
     $("#results").append('<div class=departures><h2>Departure Flight Options</h2></div>')
-    $.ajax(root_url + 'flights?filter[departure_id]='+dep_apt+'filter[arrival_id]='+arr_apt, {
+    $.ajax(root_url + 'flights?filter[departure_id]='+dep_apt+'&filter[arrival_id]='+arr_apt, {
       type: 'GET',
       dataType: 'json',
       xhrFields: {
@@ -436,7 +436,10 @@ function searchFlights() {
               var instances = response;
               for (let i = 0; i < instances.length; i++){
                 instance = instances[i];
+                console.log("dep: " +instance.date);
                 if(instance.date == dep_date){
+                  console.log("Dep apt: "+flight.departure_id);
+                  console.log("Ret apt: "+flight.arrival_id)
                   $(".departures").append('<div class=instance id="'+instance.id+'"></div>')
                   if(flight.departs_at.substring(11,12)>flight.arrives_at.substring(11,12)){
                     var date_change = parseInt(instance.date.substring(8,10))+1;
@@ -475,7 +478,7 @@ function searchFlights() {
       console.log($(".dropbtn").text())
       if($(".dropbtn").text()!="One-way"){
         $("#results").append('<div class=arrivals><h2>Return Flight Options</h2></div>')
-        $.ajax(root_url + 'flights?filter[departure_id]='+arr_apt+'filter[arrival_id]='+dep_apt, {
+        $.ajax(root_url + 'flights?filter[departure_id]='+arr_apt+'&filter[arrival_id]='+dep_apt, {
           type: 'GET',
           dataType: 'json',
           xhrFields: {
@@ -496,7 +499,10 @@ function searchFlights() {
                   var instances = response;
                   for (let i = 0; i < instances.length; i++){
                     instance = instances[i];
+                    console.log(instance.date);
                     if(instance.date == ret_date){
+                      console.log("Dep apt: "+flight.departure_id);
+                      console.log("Ret apt: "+flight.arrival_id);
                       $(".arrivals").append('<div class=instance id="'+instance.id+'"></div>')
                       if(flight.departs_at.substring(11,12)>flight.arrives_at.substring(11,12)){
                         var date_change = parseInt(instance.date.substring(8,10))+1;
@@ -591,7 +597,10 @@ $(document).on("keyup",".airport_search",function(){
 //build ticket interface
 $(document).on('click', '.itinerary', function(){
   let num_tickets = $('#pcount').val();
-
+  let departValue = $("input[name='Departure']:checked");
+  let returnValue = $("input[name='Return']:checked");
+  console.log(departValue);
+  console.log(returnValue);
   let tickets = $('<div class = "tickets"></div>');
   let itin_id = Math.floor(Math.random() * (1000 - 1)) + 1;
   tickets.attr("id", itin_id);
