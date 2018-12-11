@@ -183,6 +183,27 @@ var build_search = function(airports) {
     }
 }
 
+
+function getInstance(ticket) {
+  return $.ajax(root_url + 'instances/'+ticket.instance_id,{
+    type: 'GET',
+    dataType: 'json',
+    xhrFields: {
+      withCredentials: true
+    }
+  });
+}
+
+function getFlight(instance){
+  return $.ajax(root_url + 'flights/' + instance.flight_id, {
+    type: 'GET',
+    dataType: 'json',
+    xhrFields: {
+      withCredentials: true
+    }
+  });
+}
+
 var build_card = function(id, card){
   $.ajax(root_url + 'tickets?filter[itinerary_id]=' + id, {
     type: 'GET',
@@ -193,12 +214,40 @@ var build_card = function(id, card){
     success: (response) => {
       console.log(response);
       for (let i=0; i< response.length; i++){
-        card.append(
+        let tk = $('<div id=tk_' + i +' class=tks>');
+        tk.append(
           '<p> Name:'+response[i].last_name +','+ response[i].first_name +'<br>' +
            'Gender:' + response[i].gender + '<br>' +
            'Age:' + response[i].age + '<br>' +
-           'Price Paid:' + response[i].price_paid + '<br></p>'
+           'Price Paid:' + response[i].price_paid + '<br></p></div>'
         );
+
+        getInstance(response[i]).then(getFlight).then(function(data) {
+          $.ajax(root_url + 'airports/' + data.arrival_id, {
+            type: 'GET',
+            dataType:'json',
+            xhrFields: {
+              withCredentials:true
+            },
+            success: (response) => {
+              tk.prepend('<p>Arrival:' + response.name + '</p>');
+            }
+          });
+        });
+
+        getInstance(response[i]).then(getFlight).then(function(data) {
+          $.ajax(root_url + 'airports/' + data.departure_id, {
+            type: 'GET',
+            dataType:'json',
+            xhrFields: {
+              withCredentials:true
+            },
+            success: (response) => {
+              tk.prepend('<p>Departure:' + response.name + '</p>');
+            }
+          });
+        });
+        card.append(tk);
       }
     },
     error: () => {
@@ -207,6 +256,8 @@ var build_card = function(id, card){
   });
   
 }
+
+
 
 var build_my_flights = function() {
     console.log("calling build_my_flights()");
@@ -225,7 +276,6 @@ var build_my_flights = function() {
         withCredentials: true
       },
       success: (response) => {
-        console.log(response);
         if (response.length == 0)
           alert("No Flights!");
         else{
@@ -238,7 +288,8 @@ var build_my_flights = function() {
           let flights = $('<div class = "bookings"></div>');
           for (let i = 0; i < ids.length; i++){
             /*build cards for each itinerary*/
-            let card = $('<p></p>').text("Itinerary:" + i);
+            let card = $('<div id=it_'+i+' class="itinerary"> \
+                          <h3>Itinerary:' + i +'</h3></div>');
             build_card(ids[i], card);
             flights.append(card);
           }
@@ -250,6 +301,9 @@ var build_my_flights = function() {
       }
     });
 }
+
+
+
 
 var build_flight_view = function() {
 }
