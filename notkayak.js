@@ -215,10 +215,10 @@ var build_card = function(id, card){
       for (let i=0; i< response.length; i++){
         let tk = $('<div id=tk_' + i +' class=tks>');
         tk.append(
-          '<p> Name:'+response[i].last_name +','+ response[i].first_name +'<br>' +
-           'Gender:' + response[i].gender + '<br>' +
-           'Age:' + response[i].age + '<br>' +
-           'Price Paid:' + response[i].price_paid + '<br></p></div>'
+          '<p> Name: '+response[i].last_name +','+ response[i].first_name +'<br>' +
+           'Gender: ' + response[i].gender + '<br>' +
+           'Age: ' + response[i].age + '<br>' +
+           'Price Paid: ' + response[i].price_paid + '<br></p></div>'
         );
 
         getInstance(response[i]).then(getFlight).then(function(data) {
@@ -229,7 +229,7 @@ var build_card = function(id, card){
               withCredentials:true
             },
             success: (response) => {
-              tk.prepend('<p>Arrival:' + response.name + '</p>');
+              tk.prepend('<p>Arrival: ' + response.name + '</p>');
             }
           });
         });
@@ -242,7 +242,7 @@ var build_card = function(id, card){
               withCredentials:true
             },
             success: (response) => {
-              tk.prepend('<p>Departure:' + response.name + '</p>');
+              tk.prepend('<p>Departure: ' + response.name + '</p>');
             }
           });
         });
@@ -287,8 +287,8 @@ var build_my_flights = function() {
           let flights = $('<div class = "bookings"></div>');
           for (let i = 0; i < ids.length; i++){
             /*build cards for each itinerary*/
-            let card = $('<div id=it_'+i+' class="itinerary"> \
-                          <h3>Itinerary:' + i +'</h3></div>');
+            let card = $('<div id=it_'+i+' class="it_card"> \
+                          <h3>Itinerary: ' + i +'</h3></div>');
             build_card(ids[i], card);
             flights.append(card);
           }
